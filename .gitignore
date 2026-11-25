@@ -1,0 +1,25 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+server/src/generated/
+.vite/
+
+# Security: private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup files
+*.bak
+*.backup

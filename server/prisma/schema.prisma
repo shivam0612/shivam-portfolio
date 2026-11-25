@@ -1,0 +1,62 @@
+// Prisma schema for the portfolio contact system.
+// Connection URL is configured in prisma.config.ts (Prisma 7).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MessageStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+  SPAM
+}
+
+enum NotificationStatus {
+  PENDING // not yet delivered (never attempted, retry scheduled, or email not configured)
+  SENT // owner notification accepted by the SMTP server
+  FAILED // gave up after the maximum number of attempts
+}
+
+model ContactMessage {
+  id           String  @id @default(uuid()) @db.Uuid
+  /// Public, non-guessable reference shown to the visitor (e.g. SP-7K3QM9-XD4TWA).
+  reference    String  @unique @db.VarChar(24)
+  name         String  @db.VarChar(100)
+  email        String  @db.VarChar(254)
+  organization String? @db.VarChar(120)
+  subject      String  @db.VarChar(150)
+  inquiryType  String  @db.VarChar(64)
+  message      String  @db.VarChar(5000)
+  consent      Boolean
+  status       MessageStatus @default(NEW)
+
+  /// SHA-256 over (email, subject, message, 10-minute bucket). Makes double-submits idempotent.
+  dedupeKey String @unique @db.VarChar(64)
+
+  // Notification outbox: state of the e-mail to the site owner.
+  notificationStatus        NotificationStatus @default(PENDING)
+  notificationAttempts      Int                @default(0)
+  notificationLastError     String?            @db.VarChar(500)
+  notificationLastAttemptAt DateTime?
+  /// Next retry time; also used as a short "lease" while an attempt is in flight.
+  notificationNextAttemptAt DateTime?
+  notifiedAt                DateTime?
+  /// Set when the optional visitor acknowledgment e-mail was accepted by the SMTP server.
+  acknowledgedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([notificationStatus, notificationNextAttemptAt])
+  @@index([email])
+  @@map("contact_messages")
+}
