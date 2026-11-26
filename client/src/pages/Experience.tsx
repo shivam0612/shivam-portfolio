@@ -9,14 +9,14 @@ export default function Experience() {
     title: 'Experience',
     path: '/experience',
     description:
-      'Professional experience in warehouse operations, inventory control and team support at Matrix Logistics Services (DHL Supply Chain), Bell Canada and Nestlé / Kellogg.',
+      'Professional and technical experience at Lambton College, Matrix Logistics Services (DHL Supply Chain), Bell Canada and Verzeo.',
   });
   return (
     <>
       <PageHero title="Experience">
         <p>
-          Warehouse operations, inventory control and team support. Employers, titles and dates are
-          shown exactly as they appear on my resume. Select a role to expand its responsibilities.
+          Software engineering, web development, AI/ML and operations experience. Select a role to
+          expand its responsibilities.
         </p>
       </PageHero>
       <section className="section section--tight">
