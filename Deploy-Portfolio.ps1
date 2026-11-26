@@ -12,7 +12,7 @@ $AwsAccount = "316356967320"
 $EcrRepository = "shivam-portfolio-api"
 
 $SshTarget = "ubuntu@15.156.221.182"
-$SshKey = ""   # Optional: enter a full .pem path here, or leave blank to use ssh-agent/default SSH config.
+$SshKey = "$env:USERPROFILE\.ssh\LightsailKey.pem"
 $RemoteProject = "/home/ubuntu/shivam-portfolio"
 
 $WebsiteUrl = "https://shivampatel.site"
