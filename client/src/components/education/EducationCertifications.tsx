@@ -77,7 +77,7 @@ export function EducationCertifications() {
         </Stagger>
         <Reveal>
           <p className="footnote">
-            Listed as they appear on the resume. Credential verification links are not included.
+            Listed as they appear on the resume.
           </p>
         </Reveal>
       </div>
