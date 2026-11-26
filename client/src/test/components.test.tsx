@@ -142,7 +142,7 @@ describe('Hero', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Bridging Supply Chain Operations & Technology.',
     );
-    expect(screen.getByRole('link', { name: /Explore My Journey/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Explore/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Get in Touch/ })).toBeInTheDocument();
   });
 
@@ -267,4 +267,5 @@ describe('project detail', () => {
     expect(screen.queryByRole('link', { name: /github|live demo/i })).toBeNull();
   });
 });
+
 

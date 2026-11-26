@@ -61,7 +61,7 @@ export function Hero() {
           <motion.div className="hero__actions" {...fade(0.5)}>
             <Magnetic>
               <Button href="#overview" cursorLabel="EXPLORE">
-                Explore My Journey
+                Explore
               </Button>
             </Magnetic>
             <Button to="/contact" variant="ghost">

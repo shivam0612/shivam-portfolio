@@ -55,7 +55,16 @@ export function createApp({
       autoLogging: { ignore: (req) => req.url?.startsWith('/api/health') ?? false },
     }),
   );
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          upgradeInsecureRequests: null,
+        },
+      },
+      strictTransportSecurity: false,
+    }),
+  );
   // gzip/deflate for text responses (HTML, JS, CSS, JSON). Skips already-compressed assets such as woff2/png.
   app.use(compression());
 

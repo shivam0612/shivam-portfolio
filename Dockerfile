@@ -1,6 +1,8 @@
 FROM node:22-bookworm-slim AS build
+
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
     && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -11,14 +13,17 @@ COPY server/prisma.config.ts ./server/prisma.config.ts
 
 RUN npm ci
 
+COPY client ./client
 COPY server ./server
 
-RUN npm run build -w server
+RUN npm run build -w client && npm run build -w server
 
 
 FROM node:22-bookworm-slim AS production-dependencies
+
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
     && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -31,8 +36,10 @@ RUN npm ci --omit=dev
 
 
 FROM node:22-bookworm-slim AS runtime
+
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
     && rm -rf /var/lib/apt/lists/*
+
 ENV NODE_ENV=production
 
 WORKDIR /app
@@ -43,6 +50,7 @@ COPY package.json package-lock.json ./
 COPY client/package.json ./client/package.json
 COPY server/package.json ./server/package.json
 
+COPY --from=build /app/client/dist ./client/dist
 COPY --from=build /app/server/dist ./server/dist
 
 COPY server/prisma ./server/prisma

@@ -74,7 +74,7 @@ describe('navigation', () => {
       '/contact',
     );
     expect(screen.getByRole('link', { name: 'Get in Touch' })).toHaveAttribute('href', '/contact');
-    const journey = screen.getByRole('link', { name: /Explore My Journey/ });
+    const journey = screen.getByRole('link', { name: /Explore/ });
     expect(journey).toHaveAttribute('href', '#overview');
     expect(document.getElementById('overview')).not.toBeNull();
   });
@@ -158,3 +158,4 @@ describe('keyboard accessibility', () => {
     expect(pagesCss).toMatch(/\.field input:focus-visible[\s\S]*?outline:\s*2px solid/);
   });
 });
+
