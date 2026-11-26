@@ -1,4 +1,4 @@
-﻿#requires -Version 5.1
+#requires -Version 5.1
 $ErrorActionPreference = "Stop"
 
 # ================= USER CONFIGURATION =================
@@ -108,11 +108,47 @@ try {
         Invoke-Checked "aws" @("login", "--profile", $AwsProfile) "AWS LOGIN"
         Invoke-Checked "aws" @("sts", "get-caller-identity", "--profile", $AwsProfile) "VERIFY AWS SESSION"
     }
-
     # Confirm immutable tag is unused.
-    & aws ecr describe-images --repository-name $EcrRepository --image-ids "imageTag=$tag" --region $AwsRegion --profile $AwsProfile 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) { Stop-WithMessage "ECR tag $tag already exists. Rerun to generate a new timestamped tag." }
+    Write-Host "`n===== CHECK ECR IMAGE TAG =====" -ForegroundColor Cyan
 
+    $outFile = [System.IO.Path]::GetTempFileName()
+    $errFile = [System.IO.Path]::GetTempFileName()
+
+    try {
+        $awsArgs = @(
+            "ecr",
+            "describe-images",
+            "--repository-name", $EcrRepository,
+            "--image-ids", "imageTag=$tag",
+            "--region", $AwsRegion,
+            "--profile", $AwsProfile,
+            "--output", "json"
+        )
+
+        $ecrProcess = Start-Process `
+            -FilePath "aws" `
+            -ArgumentList $awsArgs `
+            -NoNewWindow `
+            -Wait `
+            -PassThru `
+            -RedirectStandardOutput $outFile `
+            -RedirectStandardError $errFile
+
+        $ecrCheckText = (Get-Content $errFile -Raw) + (Get-Content $outFile -Raw)
+
+        if ($ecrProcess.ExitCode -eq 0) {
+            Stop-WithMessage "ECR tag $tag already exists. Generate a new tag."
+        }
+
+        if ($ecrCheckText -notmatch "ImageNotFoundException") {
+            Stop-WithMessage "ECR verification failed. AWS returned: $ecrCheckText"
+        }
+
+        Write-Host "ECR tag is unused. Continuing deployment." -ForegroundColor Green
+    }
+    finally {
+        Remove-Item $outFile, $errFile -Force -ErrorAction SilentlyContinue
+    }
     Invoke-Checked "docker" @("build", "--platform", "linux/amd64", "-t", $localImage, ".") "BUILD PRODUCTION DOCKER IMAGE"
 
     Write-Host "`n===== LOGIN TO ECR =====" -ForegroundColor Cyan
