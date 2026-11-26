@@ -76,9 +76,7 @@ export function EducationCertifications() {
           ))}
         </Stagger>
         <Reveal>
-          <p className="footnote">
-            Listed as they appear on the resume.
-          </p>
+          <p className="footnote">Listed as they appear on the resume.</p>
         </Reveal>
       </div>
     </section>

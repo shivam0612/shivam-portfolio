@@ -13,7 +13,11 @@ describe('resume fidelity', () => {
     expect(experience.map((e) => [e.employer, e.title, e.dates])).toEqual([
       ['Lambton College', 'Software Engineering Team Lead', 'May 2023 – August 2023'],
       ['Matrix Logistics Services', 'Team Member', 'August 2022 – November 2026'],
-      ['Bell Canada', 'Team Leader / Sales Supervisor and Sales Associate', 'February 2022 – June 2024'],
+      [
+        'Bell Canada',
+        'Team Leader / Sales Supervisor and Sales Associate',
+        'February 2022 – June 2024',
+      ],
       ['Verzeo', 'Web Development Intern', 'March 2021 – August 2021'],
       ['Verzeo', 'Artificial Intelligence Intern', 'October 2020 – December 2020'],
     ]);

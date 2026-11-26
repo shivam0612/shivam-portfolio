@@ -9,6 +9,8 @@ export default tseslint.config(
     ignores: [
       '**/dist/**',
       '**/node_modules/**',
+      '**/backup-*/**',
+      '**/*.backup-*',
       'server/src/generated/**',
       'client/public/**',
       'coverage/**',

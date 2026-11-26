@@ -158,4 +158,3 @@ describe('keyboard accessibility', () => {
     expect(pagesCss).toMatch(/\.field input:focus-visible[\s\S]*?outline:\s*2px solid/);
   });
 });
-

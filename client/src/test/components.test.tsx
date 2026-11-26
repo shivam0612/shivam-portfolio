@@ -55,9 +55,7 @@ describe('ExperienceTimeline', () => {
     const user = userEvent.setup();
     wrap(<ExperienceTimeline />);
 
-    const buttons = screen
-      .getAllByRole('button')
-      .filter((b) => b.hasAttribute('aria-controls'));
+    const buttons = screen.getAllByRole('button').filter((b) => b.hasAttribute('aria-controls'));
 
     const [lambton, matrix, bell] = buttons;
 
@@ -77,9 +75,7 @@ describe('ExperienceTimeline', () => {
     await user.click(bell!);
     expect(bell).toHaveAttribute('aria-expanded', 'true');
 
-    expect(
-      await screen.findByText(/Led a team of 5–6 sales associates/),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Led a team of 5–6 sales associates/)).toBeInTheDocument();
 
     expect(matrix).toHaveAttribute('aria-expanded', 'false');
 
@@ -283,5 +279,3 @@ describe('project detail', () => {
     expect(screen.queryByRole('link', { name: /github|live demo/i })).toBeNull();
   });
 });
-
-

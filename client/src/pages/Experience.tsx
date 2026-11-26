@@ -16,8 +16,8 @@ export default function Experience() {
     <>
       <PageHero title="Experience">
         <p>
-          Software engineering, web development, AI/ML and operations experience.
-          Select a role to expand its responsibilities.
+          Software engineering, web development, AI/ML and operations experience. Select a role to
+          expand its responsibilities.
         </p>
       </PageHero>
 

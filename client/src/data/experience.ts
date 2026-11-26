@@ -97,16 +97,7 @@ export const experience: ExperienceEntry[] = [
       'Responsive Web Design',
       'Data Visualization',
     ],
-    technology: [
-      'HTML',
-      'CSS',
-      'JavaScript',
-      'Bootstrap',
-      'SASS',
-      'ReactJS',
-      'NodeJS',
-      'MongoDB',
-    ],
+    technology: ['HTML', 'CSS', 'JavaScript', 'Bootstrap', 'SASS', 'ReactJS', 'NodeJS', 'MongoDB'],
   },
   {
     id: 'verzeo-ai',

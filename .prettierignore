@@ -4,3 +4,8 @@ coverage
 server/src/generated
 server/prisma/migrations
 package-lock.json
+
+# Local backup folders and backup files
+backup-*/**
+**/backup-*/**
+**/*.backup-*
