@@ -43,7 +43,7 @@ const metrics = [
     value: certifications.length,
     suffix: '',
     label: 'Listed certifications and qualifications',
-    note: 'As listed on the resume; not independently verified',
+    note: 'AWS and supply chain credentials',
   },
   {
     value: skillCategories.length,

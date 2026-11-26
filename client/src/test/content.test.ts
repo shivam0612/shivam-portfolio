@@ -46,10 +46,11 @@ describe('resume fidelity', () => {
 
   it('lists the three certifications without invented credential links or IDs', () => {
     expect(certifications.map((c) => c.name)).toEqual([
+      'AWS Certified Solutions Architect – Associate',
+      'AWS Certified Cloud Practitioner – Foundational',
       'Certified Supply Chain Specialist (CSCS)',
-      'Diploma in Operations Management',
-      'Leadership and Supervisory Skills',
     ]);
+    expect(certifications.map((c) => c.expiry)).toEqual(['05/2027', '05/2027', 'No expiry']);
     expect(certifications.every((c) => c.credentialUrl === null)).toBe(true);
     expect(JSON.stringify(certifications)).not.toMatch(/credential id|https?:\/\//i);
   });

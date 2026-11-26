@@ -56,6 +56,11 @@ export function EducationCertifications() {
                   <span className="edu-card__label">{c.issuerLabel}:</span> {c.issuer}
                 </p>
                 {c.note && <p className="edu-card__note">{c.note}</p>}
+                {c.expiry && (
+                  <p className="edu-card__note">
+                    <span className="edu-card__label">Expiry:</span> {c.expiry}
+                  </p>
+                )}
                 {c.credentialUrl && (
                   <a
                     className="text-link"

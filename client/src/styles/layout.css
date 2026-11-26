@@ -1,4 +1,4 @@
-/* ---------- app shell ---------- */
+﻿/* ---------- app shell ---------- */
 .app-shell[data-intro='checking'],
 .app-shell[data-intro='splash'] {
   visibility: hidden;
@@ -435,53 +435,39 @@
   border-color: var(--accent);
 }
 
-/* ---------- custom cursor (only mounted for fine pointers without reduced motion) ---------- */
-html.has-custom-cursor,
-html.has-custom-cursor a,
-html.has-custom-cursor button,
-html.has-custom-cursor [role='button'],
-html.has-custom-cursor label,
-html.has-custom-cursor select,
-html.has-custom-cursor summary {
-  cursor: none;
-}
-html.has-custom-cursor input,
-html.has-custom-cursor textarea {
-  cursor: text;
-}
+/* ---------- colourful glow cursor (native arrow remains visible) ---------- */
 .cursor {
   position: fixed;
   inset: 0;
   z-index: 9999;
   pointer-events: none;
 }
-.cursor__dot,
+
+/* Keep the browser's normal arrow visible; only the decorative glow follows behind it. */
+.cursor__dot {
+  display: none;
+}
+
 .cursor__ring {
   position: fixed;
   left: 0;
   top: 0;
-  opacity: 0;
-  will-change: transform;
-  transition: opacity 0.2s;
-}
-.cursor-visible .cursor__dot,
-.cursor-visible .cursor__ring {
-  opacity: 1;
-}
-.cursor__dot {
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.85);
-}
-.cursor__ring {
-  width: 36px;
-  height: 36px;
-  margin: -18px 0 0 -18px;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
   display: grid;
   place-items: center;
+  opacity: 0;
+  will-change: transform;
+  transition:
+    opacity 0.2s,
+    filter 0.25s var(--ease);
+  filter:
+    drop-shadow(0 0 5px rgba(118, 185, 0, 0.55))
+    drop-shadow(0 0 12px rgba(0, 212, 255, 0.28));
+}
+.cursor-visible .cursor__ring {
+  opacity: 1;
 }
 .cursor__ring::before,
 .cursor__ring::after {
@@ -489,36 +475,58 @@ html.has-custom-cursor textarea {
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  pointer-events: none;
 }
 .cursor__ring::before {
-  border: 1px solid rgba(56, 189, 248, 0.55);
-  background: rgba(56, 189, 248, 0);
+  padding: 1.5px;
+  background: conic-gradient(
+    from 35deg,
+    #76B900 0deg,
+    #00D4FF 115deg,
+    #8B5CF6 235deg,
+    #76B900 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
   transition:
     transform 0.3s var(--ease),
-    background-color 0.3s,
-    border-color 0.3s;
+    opacity 0.3s;
+}
+.cursor__ring::after {
+  inset: 5px;
+  background: radial-gradient(
+    circle,
+    rgba(118, 185, 0, 0.12) 0%,
+    rgba(0, 212, 255, 0.06) 45%,
+    transparent 72%
+  );
+  filter: blur(5px);
+  opacity: 0.9;
+}
+.cursor__ring[data-state='link'] {
+  filter:
+    drop-shadow(0 0 7px rgba(118, 185, 0, 0.7))
+    drop-shadow(0 0 16px rgba(0, 212, 255, 0.4));
 }
 .cursor__ring[data-state='link']::before {
-  transform: scale(1.45);
-  border-color: rgba(56, 189, 248, 0.8);
+  transform: scale(1.35);
 }
 .cursor__ring[data-state='button']::before {
-  transform: scale(1.7);
-  background: rgba(56, 189, 248, 0.1);
-  border-color: rgba(56, 189, 248, 0.85);
+  transform: scale(1.55);
 }
 .cursor__ring[data-state='card']::before {
-  transform: scale(2.5);
-  background: rgba(56, 189, 248, 0.1);
-  border-color: rgba(56, 189, 248, 0.7);
+  transform: scale(1.9);
 }
 .cursor__ring[data-state='diagram']::before {
-  transform: scale(1.8);
-  border-style: dashed;
-  border-color: rgba(139, 92, 246, 0.9);
+  transform: scale(1.55);
 }
-.cursor__ring[data-state='hidden'],
-.cursor__dot[data-state='hidden'] {
+.cursor__ring[data-state='hidden'] {
   opacity: 0 !important;
 }
 .cursor__label {
@@ -536,7 +544,10 @@ html.has-custom-cursor textarea {
   opacity: 1;
 }
 .cursor__ring.is-pulsing::after {
+  inset: 0;
   border: 1px solid var(--accent);
+  background: transparent;
+  filter: none;
   animation: cursor-pulse 0.5s ease-out;
 }
 @keyframes cursor-pulse {
@@ -549,3 +560,4 @@ html.has-custom-cursor textarea {
     opacity: 0;
   }
 }
+

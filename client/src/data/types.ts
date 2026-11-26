@@ -47,6 +47,8 @@ export interface Certification {
   issuer: string;
   issuerLabel: 'Issuer' | 'Provider';
   note?: string;
+  /** Displayed expiry date, or 'No expiry' when the credential does not expire. */
+  expiry?: string;
   /** Only set when an authentic, verifiable URL has been provided. */
   credentialUrl: string | null;
 }
