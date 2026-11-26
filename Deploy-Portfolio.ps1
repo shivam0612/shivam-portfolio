@@ -503,7 +503,33 @@ echo "DEPLOYMENT_SUCCESS"
 
     $remoteCommand = "echo '$base64' | base64 -d | bash -s -- '$image'"
 
-    Run-SSH $remoteCommand "LIGHTSAIL APP-ONLY DEPLOYMENT"
+    # Obtain a fresh ECR token for the Lightsail server.
+    $remoteEcrPassword = & aws ecr get-login-password `
+        --region $AwsRegion `
+        --profile $AwsProfile
+
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($remoteEcrPassword)) {
+        Stop-Now "Could not obtain a fresh ECR token for Lightsail."
+    }
+
+    # Authenticate remote Docker using SSH standard input.
+    # The ECR token is never included in the SSH command.
+    $remoteCommand = "DOCKER_CONFIG=`$(mktemp -d) && export DOCKER_CONFIG && trap 'rm -rf `"`$DOCKER_CONFIG`"' EXIT && docker login --username AWS --password-stdin $ecrHost && echo '$base64' | base64 -d | bash -s -- '$image'"
+
+    Write-Host "`n===== LIGHTSAIL ECR AUTHENTICATION AND DEPLOYMENT =====" -ForegroundColor Cyan
+
+    $remoteEcrPassword | & ssh -i $SshKey `
+        -o BatchMode=yes `
+        -o ConnectTimeout=15 `
+        -o StrictHostKeyChecking=accept-new `
+        $SshTarget $remoteCommand
+
+    $sshExitCode = $LASTEXITCODE
+    $remoteEcrPassword = $null
+
+    if ($sshExitCode -ne 0) {
+        Stop-Now "Lightsail ECR authentication or deployment failed."
+    }
 
     # Public health checks.
     Write-Host "`n===== PUBLIC WEBSITE CHECKS =====" -ForegroundColor Cyan
