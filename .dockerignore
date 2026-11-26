@@ -1,0 +1,33 @@
+.git
+.github
+node_modules
+**/node_modules
+
+.env
+.env.*
+**/.env
+**/.env.*
+
+client/dist
+server/dist
+server/src/generated/prisma
+
+**/coverage
+**/*.log
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+# Security: private keys and certificates
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/.npmrc
+
+# Local database and backup files
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+**/*.bak
+**/*.backup
