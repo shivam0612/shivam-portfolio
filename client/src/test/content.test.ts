@@ -9,19 +9,22 @@ import { skillCategories } from '../data/skills';
 
 /** Guards that fail if unverified or invented information is ever added. */
 describe('resume fidelity', () => {
-  it('shows employment dates exactly as provided, including the overlap, unchanged', () => {
-    expect(experience.map((e) => [e.employer, e.title, e.dates])).toEqual([
-      ['Matrix Logistics Services', 'Team Member', 'August 2022 – Present'],
-      ['Bell Canada', 'Sales Associate / Team Support', 'February 2022 – June 2024'],
-      ['Nestlé / Kellogg', 'Warehouse Associate', 'December 2021 – September 2022'],
+  it('shows the five requested roles in the requested order', () => {
+    expect(experience.map((e) => [e.employer, e.title])).toEqual([
+      ['Lambton College', 'Software Engineering Team Lead'],
+      ['Matrix Logistics Services', 'Team Member'],
+      ['Bell Canada', 'Team Leader / Sales Supervisor and Sales Associate'],
+      ['Verzeo', 'Web Development Intern'],
+      ['Verzeo', 'Artificial Intelligence Intern'],
     ]);
   });
 
-  it('keeps every Matrix Logistics responsibility from the resume', () => {
-    expect(experience[0]!.responsibilities).toHaveLength(11);
-    expect(experience[0]!.technology).toEqual(['DALLAS']);
-    expect(experience[1]!.technology).toEqual(['Microsoft Office', 'Google Docs', 'Salesforce']);
-    expect(experience[2]!.responsibilities[0]).toMatch(/99% accuracy.*as reported in the resume/);
+  it('keeps the supplied experience details and excludes the removed warehouse role', () => {
+    expect(experience).toHaveLength(5);
+    expect(experience[1]!.technology).toEqual(['DALLAS']);
+    expect(experience[2]!.technology).toEqual(['Salesforce', 'Microsoft Office']);
+    expect(experience[0]!.responsibilities).toHaveLength(5);
+    expect(experience.some((e) => /Nestlé|Kellogg/i.test(e.employer))).toBe(false);
   });
 
   it('lists education exactly as provided', () => {
@@ -110,7 +113,7 @@ describe('no fabricated metrics', () => {
     expect(names).toHaveLength(7 + 6 + 6 + 8 + 6);
   });
 
-  it('only the resume-stated 99% figure appears anywhere in the data, always attributed', () => {
+  it('uses only the supplied resume metrics in experience data', () => {
     const everything = JSON.stringify({
       experience,
       skillCategories,
@@ -119,10 +122,8 @@ describe('no fabricated metrics', () => {
       heroFlow,
     });
     const percents = everything.match(/\d+\s?%/g) ?? [];
-    expect(new Set(percents)).toEqual(new Set(['99%']));
-    expect(everything).toMatch(
-      /99% accuracy[^"]*(as reported in the resume|as stated on the resume|Nestlé)/,
-    );
+    expect(new Set(percents)).toEqual(new Set(['40%', '25%', '85%', '80%', '90%']));
+
   });
 });
 
