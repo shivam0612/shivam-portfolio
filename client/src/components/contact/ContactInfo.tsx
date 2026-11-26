@@ -21,15 +21,19 @@ export function ContactInfo() {
             </a>
           </div>
         </li>
-        <li>
-          <Phone size={20} aria-hidden="true" />
-          <div>
-            <span className="contact-list__label">Phone</span>
-            <a href={profile.contact.phoneHref} data-cursor="link">
-              {profile.contact.phone}
-            </a>
-          </div>
-        </li>
+       <li>
+        <Phone size={20} aria-hidden="true" />
+        <div>
+          <span className="contact-list__label">Phone</span>
+          <a href={profile.contact.phoneHref} data-cursor="link">
+            {profile.contact.phone}
+          </a>
+          <br />
+          <a href={profile.contact.phoneIndiaHref} data-cursor="link">
+            {profile.contact.phoneIndia}
+          </a>
+        </div>
+      </li>
         {profile.location && (
           <li>
             <MapPin size={20} aria-hidden="true" />

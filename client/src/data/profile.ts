@@ -44,8 +44,10 @@ export const profile = {
 
   contact: {
     email: 'Shivampatel868@yahoo.com',
-    phone: '647-877-3709',
+    phone: '+1 647-877-3709',
     phoneHref: 'tel:+16478773709',
+    phoneIndia: '+91 7359003709',
+    phoneIndiaHref: 'tel:+917359003709',
   },
 
   /**

@@ -231,9 +231,13 @@ describe('contact page', () => {
       'href',
       'mailto:Shivampatel868@yahoo.com',
     );
-    expect(screen.getAllByRole('link', { name: '647-877-3709' })[0]).toHaveAttribute(
+    expect(screen.getAllByRole('link', { name: '+1 647-877-3709' })[0]).toHaveAttribute(
       'href',
       'tel:+16478773709',
+    );
+    expect(screen.getAllByRole('link', { name: '+91 7359003709' })[0]).toHaveAttribute(
+      'href',
+      'tel:+917359003709',
     );
     for (const label of ['Full name', 'Email address', 'Subject', 'Message', 'Inquiry type']) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
@@ -263,3 +267,4 @@ describe('project detail', () => {
     expect(screen.queryByRole('link', { name: /github|live demo/i })).toBeNull();
   });
 });
+

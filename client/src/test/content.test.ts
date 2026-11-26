@@ -56,8 +56,10 @@ describe('resume fidelity', () => {
 
   it('uses the supplied contact details', () => {
     expect(profile.contact.email).toBe('Shivampatel868@yahoo.com');
-    expect(profile.contact.phone).toBe('647-877-3709');
+    expect(profile.contact.phone).toBe('+1 647-877-3709');
     expect(profile.contact.phoneHref).toBe('tel:+16478773709');
+    expect(profile.contact.phoneIndia).toBe('+91 7359003709');
+    expect(profile.contact.phoneIndiaHref).toBe('tel:+917359003709');
   });
 
   it('hides everything that was not provided by default', () => {
