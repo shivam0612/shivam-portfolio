@@ -1,10 +1,11 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 $ErrorActionPreference = "Stop"
 
-# ================= USER CONFIGURATION =================
+# ================= CONFIGURATION =================
 $ProjectRoot = "C:\Users\Admin\Documents\AWS-DEVOPS-PROJECT\development\shivam-portfolio"
 $GitBranch = "main"
 $GitRemote = "origin"
+$GitHubRepo = "shivam0612/shivam-portfolio"
 
 $AwsProfile = "portfolio-admin"
 $AwsRegion = "ca-central-1"
@@ -16,181 +17,408 @@ $SshKey = "$env:USERPROFILE\.ssh\LightsailKey.pem"
 $RemoteProject = "/home/ubuntu/shivam-portfolio"
 
 $WebsiteUrl = "https://shivampatel.site"
-# ======================================================
+# =================================================
 
-function Stop-WithMessage([string]$Message) {
+function Stop-Now($Message) {
     Write-Host "`nERROR: $Message" -ForegroundColor Red
     throw $Message
 }
-function Invoke-Checked([string]$File, [string[]]$Arguments, [string]$Label) {
+
+function Require-Command($Name) {
+    if (!(Get-Command $Name -ErrorAction SilentlyContinue)) {
+        Stop-Now "Required command missing: $Name"
+    }
+}
+
+function Run-Checked($File, [string[]]$Arguments, $Label) {
     Write-Host "`n===== $Label =====" -ForegroundColor Cyan
     & $File @Arguments
-    if ($LASTEXITCODE -ne 0) { Stop-WithMessage "$Label failed (exit $LASTEXITCODE)." }
+
+    if ($LASTEXITCODE -ne 0) {
+        Stop-Now "$Label failed. Exit code: $LASTEXITCODE"
+    }
 }
-function Invoke-Ssh([string]$RemoteCommand, [string]$Label) {
+
+function Run-SSH($Command, $Label) {
     Write-Host "`n===== $Label =====" -ForegroundColor Cyan
-    if ($SshKey.Trim()) {
-        & ssh -i $SshKey -o BatchMode=yes -o StrictHostKeyChecking=accept-new $SshTarget $RemoteCommand
-    } else {
-        & ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new $SshTarget $RemoteCommand
+
+    & ssh -i $SshKey `
+        -o BatchMode=yes `
+        -o ConnectTimeout=15 `
+        -o StrictHostKeyChecking=accept-new `
+        $SshTarget $Command
+
+    if ($LASTEXITCODE -ne 0) {
+        Stop-Now "$Label failed."
     }
-    if ($LASTEXITCODE -ne 0) { Stop-WithMessage "$Label failed (exit $LASTEXITCODE)." }
 }
 
-try {
-    Write-Host "`n===============================================" -ForegroundColor Green
-    Write-Host " SHIVAM PORTFOLIO - BUILD, GITHUB, ECR & DEPLOY" -ForegroundColor Green
-    Write-Host "===============================================" -ForegroundColor Green
+function Check-Project {
+    Run-Checked "npm" @("run", "test", "-w", "client") "CLIENT TESTS"
+    Run-Checked "npm" @("run", "test", "-w", "server") "SERVER TESTS"
+    Run-Checked "npm" @("run", "build", "-w", "client") "CLIENT BUILD"
+    Run-Checked "npm" @("run", "build", "-w", "server") "SERVER BUILD"
+}
 
-    if (!(Test-Path $ProjectRoot)) { Stop-WithMessage "Project folder not found: $ProjectRoot" }
-    Set-Location $ProjectRoot
+function Check-Repository {
+    $remote = (& git remote get-url $GitRemote).Trim()
 
-    foreach ($cmd in @("git", "node", "npm", "docker", "aws", "ssh")) {
-        if (!(Get-Command $cmd -ErrorAction SilentlyContinue)) { Stop-WithMessage "Required command not found: $cmd" }
+    if (
+        $LASTEXITCODE -ne 0 -or
+        $remote -notmatch '^(https://github\.com/|git@github\.com:)shivam0612/shivam-portfolio(\.git)?$'
+    ) {
+        Stop-Now "Unexpected GitHub remote."
     }
+}
 
-    # Validate repository and branch before touching files.
+# =================================================
+# OPTION 1 - PREPARE GITHUB PULL REQUEST
+# =================================================
+
+function Prepare-PR {
+
+    Write-Host "`nOPTION 1: PREPARE GITHUB PULL REQUEST" -ForegroundColor Green
+
     $branch = (& git branch --show-current).Trim()
-    if ($LASTEXITCODE -ne 0 -or $branch -ne $GitBranch) {
-        Stop-WithMessage "Expected Git branch '$GitBranch', found '$branch'. Switch branches manually and rerun."
-    }
-    $remoteUrl = (& git remote get-url $GitRemote).Trim()
-    if ($LASTEXITCODE -ne 0 -or $remoteUrl -notmatch "shivam0612/shivam-portfolio") {
-        Stop-WithMessage "Git remote '$GitRemote' is not the expected shivam0612/shivam-portfolio repository."
+
+    if ($branch -ne "main") {
+        Stop-Now "Start Option 1 from main."
     }
 
-    # Run the same client/server checks used for the project.
-    Invoke-Checked "npm" @("run", "test", "-w", "client") "CLIENT TESTS"
-    Invoke-Checked "npm" @("run", "test", "-w", "server") "SERVER TESTS"
-    Invoke-Checked "npm" @("run", "build", "-w", "client") "CLIENT PRODUCTION BUILD"
-    Invoke-Checked "npm" @("run", "build", "-w", "server") "SERVER PRODUCTION BUILD"
 
-    # Stage project changes but exclude timestamped scratch/backup files.
-    Write-Host "`n===== REVIEWING CHANGES =====" -ForegroundColor Cyan
-    & git add -A -- . ":(exclude)**/*.backup-*" ":(exclude)**/*backup-*"
-    if ($LASTEXITCODE -ne 0) { Stop-WithMessage "Git staging failed." }
+    Run-Checked "git" @("fetch", "origin") "FETCH GITHUB"
 
-    & git status --short
-    if ($LASTEXITCODE -ne 0) { Stop-WithMessage "Could not read Git status." }
+    $counts = (& git rev-list --left-right --count "origin/main...HEAD").Trim() -split '\s+'
 
-    $staged = (& git diff --cached --name-only)
-    if ($staged) {
-        Write-Host "`nStaged files:" -ForegroundColor Yellow
-        $staged | ForEach-Object { Write-Host "  $_" }
-        Write-Host "`nReview staged changes carefully. .env files should remain ignored and must never be committed."
-        $confirmCommit = Read-Host "Commit and push these staged changes to GitHub? Type YES"
-        if ($confirmCommit -cne "YES") { Stop-WithMessage "Stopped before commit/push. No deployment performed." }
+    if ($LASTEXITCODE -ne 0 -or $counts.Count -ne 2) {
+        Stop-Now "Could not compare local main with GitHub."
+    }
 
-        $commitMessage = Read-Host "Commit message (leave blank for automatic message)"
-        if ([string]::IsNullOrWhiteSpace($commitMessage)) {
-            $commitMessage = "Deploy portfolio $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+    if ([int]$counts[1] -gt 0) {
+        Stop-Now "Local main has commits not on GitHub."
+    }
+
+    if ([int]$counts[0] -gt 0) {
+        Run-Checked "git" @("pull", "--ff-only", "origin", "main") "UPDATE MAIN"
+    }
+
+    Check-Project
+
+    Write-Host "`n===== MANUAL STAGING VALIDATION =====" -ForegroundColor Cyan
+
+    $files = @(& git diff --cached --name-only)
+
+    if ($LASTEXITCODE -ne 0) {
+        Stop-Now "Could not inspect staged files."
+    }
+
+    if ($files.Count -eq 0) {
+        Stop-Now "Nothing is staged. Manually stage only the intended files, then run Option 1 again."
+    }
+
+    $unstagedFiles = @(& git diff --name-only)
+
+    if ($LASTEXITCODE -ne 0) {
+        Stop-Now "Could not inspect unstaged changes."
+    }
+
+    if ($unstagedFiles.Count -gt 0) {
+        Write-Host "These tracked files still have unstaged changes:" -ForegroundColor Yellow
+        $unstagedFiles | ForEach-Object { Write-Host "  $_" }
+        Stop-Now "Stage or resolve all intended tracked changes before continuing."
+    }
+
+    $unsafeFiles = @($files | Where-Object {
+        $_ -match '(?i)(^|/)([^/]*backup[^/]*)(/|$)|\.backup(?:-|$)|(^|/)\.env(?:\.|$)|\.pem$|secret|credential'
+    })
+
+    if ($unsafeFiles.Count -gt 0) {
+        Write-Host "Rejected files:" -ForegroundColor Red
+        $unsafeFiles | ForEach-Object { Write-Host "  $_" }
+        Stop-Now "Backup or potentially sensitive files cannot be submitted."
+    }
+
+    Run-Checked "git" @("diff", "--cached", "--check") "CHECK PATCH"
+
+    Write-Host "`nFILES TO SUBMIT:" -ForegroundColor Yellow
+
+    $files | ForEach-Object {
+        Write-Host "  $_"
+    }
+
+    if ($files | Where-Object {
+        $_ -match '(^|/)(\.env($|\.)|.*\.pem$|.*secret.*|.*credential.*)'
+    }) {
+        Stop-Now "Potential secret detected in staged files."
+    }
+
+    $confirm = Read-Host "`nReview files carefully. Type YES to continue"
+
+    if ($confirm -cne "YES") {
+        Stop-Now "Cancelled."
+    }
+
+    $featureBranch = "feature/portfolio-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+
+    Run-Checked "git" @("switch", "-c", $featureBranch) "CREATE FEATURE BRANCH"
+
+    $message = Read-Host "Enter commit message"
+
+    if ([string]::IsNullOrWhiteSpace($message)) {
+        Stop-Now "Commit message is required."
+    }
+
+    Run-Checked "git" @("commit", "-m", $message) "COMMIT CHANGES"
+
+    Run-Checked "git" @("push", "-u", "origin", $featureBranch) "PUSH FEATURE BRANCH"
+
+    Write-Host "`nCreating GitHub pull request..." -ForegroundColor Yellow
+
+    Run-Checked "gh" @(
+        "pr", "create",
+        "--repo", $GitHubRepo,
+        "--base", "main",
+        "--head", $featureBranch,
+        "--fill"
+    ) "CREATE PULL REQUEST"
+
+    $prNumber = (& gh pr view $featureBranch `
+        --repo $GitHubRepo `
+        --json number `
+        --jq ".number").Trim()
+
+    if ($LASTEXITCODE -ne 0 -or !$prNumber) {
+        Stop-Now "Could not retrieve the created PR number."
+    }
+
+    Write-Host "Created PR number: $prNumber" -ForegroundColor Green
+
+    Run-Checked "gh" @(
+        "pr", "checks", $prNumber,
+        "--repo", $GitHubRepo,
+        "--watch"
+    ) "VERIFY PULL REQUEST CHECKS"
+
+    Run-Checked "gh" @(
+        "pr", "view", $prNumber,
+        "--repo", $GitHubRepo,
+        "--json", "url,state,mergeStateStatus"
+    ) "PULL REQUEST STATUS"
+
+    Write-Host "`nOPTION 1 COMPLETED." -ForegroundColor Green
+    Write-Host "Review and merge the PR yourself on GitHub."
+}
+
+# =================================================
+# OPTION 2 - DEPLOY APPROVED MAIN TO AWS
+# =================================================
+
+function Deploy-Main {
+
+    Write-Host "`nOPTION 2: DEPLOY APPROVED MAIN TO AWS" -ForegroundColor Green
+
+    $branch = (& git branch --show-current).Trim()
+
+    if ($branch -ne "main") {
+        Stop-Now "Option 2 requires main."
+    }
+
+
+    $trackedChanges = & git status --porcelain --untracked-files=no
+
+    if ($trackedChanges) {
+        Stop-Now "Tracked local changes exist. Commit or resolve them first."
+    }
+
+    Run-Checked "git" @("fetch", "origin") "FETCH MAIN"
+
+    $counts = (& git rev-list --left-right --count "origin/main...HEAD").Trim() -split '\s+'
+
+    if ($LASTEXITCODE -ne 0 -or $counts.Count -ne 2) {
+        Stop-Now "Could not compare local main with GitHub."
+    }
+
+    if ([int]$counts[1] -gt 0) {
+        Stop-Now "Local main is ahead of GitHub."
+    }
+
+    if ([int]$counts[0] -gt 0) {
+        Run-Checked "git" @("pull", "--ff-only", "origin", "main") "UPDATE MAIN"
+    }
+
+    $commit = (& git rev-parse HEAD).Trim()
+
+    # Verify GitHub Actions for the exact commit.
+    Write-Host "`n===== VERIFY GITHUB ACTIONS =====" -ForegroundColor Cyan
+
+    $json = & gh run list `
+        --repo $GitHubRepo `
+        --branch main `
+        --commit $commit `
+        --limit 20 `
+        --json databaseId,status,conclusion,workflowName
+
+    if ($LASTEXITCODE -ne 0) {
+        Stop-Now "Unable to retrieve GitHub Actions."
+    }
+
+    $runs = @($json | ConvertFrom-Json)
+
+    if ($runs.Count -eq 0) {
+        Stop-Now "No GitHub Actions runs found for this exact commit."
+    }
+
+    foreach ($run in $runs) {
+        if ($run.status -ne "completed") {
+            Run-Checked "gh" @(
+                "run", "watch",
+                "$($run.databaseId)",
+                "--repo", $GitHubRepo,
+                "--exit-status"
+            ) "WAIT FOR $($run.workflowName)"
         }
-        Invoke-Checked "git" @("commit", "-m", $commitMessage) "GIT COMMIT"
-    } else {
-        Write-Host "No new staged changes; using current commit."
     }
 
-    Invoke-Checked "git" @("push", $GitRemote, $GitBranch) "PUSH TO GITHUB"
+    $json = & gh run list `
+        --repo $GitHubRepo `
+        --branch main `
+        --commit $commit `
+        --limit 20 `
+        --json databaseId,status,conclusion,workflowName
 
-    $commit = (& git rev-parse --short HEAD).Trim()
-    if ($LASTEXITCODE -ne 0) { Stop-WithMessage "Could not determine Git commit." }
+    if ($LASTEXITCODE -ne 0) {
+        Stop-Now "Could not verify final Actions status."
+    }
+
+    $runs = @($json | ConvertFrom-Json)
+
+    $failed = @($runs | Where-Object {
+        $_.status -ne "completed" -or $_.conclusion -ne "success"
+    })
+
+    if ($failed.Count -gt 0) {
+        Stop-Now "One or more GitHub Actions workflows failed."
+    }
+
+    Write-Host "GitHub Actions checks passed." -ForegroundColor Green
+
+    # SSH preflight BEFORE Docker build and ECR push.
+    if (!(Test-Path -LiteralPath $SshKey -PathType Leaf)) {
+        Stop-Now "SSH private key does not exist: $SshKey"
+    }
+
+    $sshCheck = "test -d '$RemoteProject' && cd '$RemoteProject' && docker compose config --quiet && echo SSH_AND_COMPOSE_OK"
+
+    Run-SSH $sshCheck "SSH AUTHENTICATION AND COMPOSE CHECK"
+
+    # AWS session.
+    Write-Host "`n===== AWS SESSION =====" -ForegroundColor Cyan
+
+    & aws sts get-caller-identity --profile $AwsProfile
+
+    if ($LASTEXITCODE -ne 0) {
+        Run-Checked "aws" @("login", "--profile", $AwsProfile) "AWS LOGIN"
+        Run-Checked "aws" @("sts", "get-caller-identity", "--profile", $AwsProfile) "VERIFY AWS"
+    }
+
     $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
-    $tag = "deploy-$commit-$stamp"
+    $tag = "deploy-$($commit.Substring(0,7))-$stamp"
+
     $ecrHost = "$AwsAccount.dkr.ecr.$AwsRegion.amazonaws.com"
     $image = "$ecrHost/$EcrRepository`:$tag"
     $localImage = "shivam-portfolio:$tag"
 
-    # Ensure the AWS session is valid; invoke interactive AWS login only if needed.
-    Write-Host "`n===== CHECK AWS SESSION =====" -ForegroundColor Cyan
-    & aws sts get-caller-identity --profile $AwsProfile --output json
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "AWS session needs login. Complete the AWS browser/device login if prompted." -ForegroundColor Yellow
-        Invoke-Checked "aws" @("login", "--profile", $AwsProfile) "AWS LOGIN"
-        Invoke-Checked "aws" @("sts", "get-caller-identity", "--profile", $AwsProfile) "VERIFY AWS SESSION"
+    # Build.
+    Run-Checked "docker" @(
+        "build",
+        "--platform", "linux/amd64",
+        "-t", $localImage,
+        "."
+    ) "BUILD PRODUCTION IMAGE"
+
+    # Login.
+    $password = & aws ecr get-login-password `
+        --region $AwsRegion `
+        --profile $AwsProfile
+
+    if ($LASTEXITCODE -ne 0 -or !$password) {
+        Stop-Now "Could not obtain ECR login token."
     }
-    # Confirm immutable tag is unused.
-    Write-Host "`n===== CHECK ECR IMAGE TAG =====" -ForegroundColor Cyan
 
-    $outFile = [System.IO.Path]::GetTempFileName()
-    $errFile = [System.IO.Path]::GetTempFileName()
-
-    try {
-        $awsArgs = @(
-            "ecr",
-            "describe-images",
-            "--repository-name", $EcrRepository,
-            "--image-ids", "imageTag=$tag",
-            "--region", $AwsRegion,
-            "--profile", $AwsProfile,
-            "--output", "json"
-        )
-
-        $ecrProcess = Start-Process `
-            -FilePath "aws" `
-            -ArgumentList $awsArgs `
-            -NoNewWindow `
-            -Wait `
-            -PassThru `
-            -RedirectStandardOutput $outFile `
-            -RedirectStandardError $errFile
-
-        $ecrCheckText = (Get-Content $errFile -Raw) + (Get-Content $outFile -Raw)
-
-        if ($ecrProcess.ExitCode -eq 0) {
-            Stop-WithMessage "ECR tag $tag already exists. Generate a new tag."
-        }
-
-        if ($ecrCheckText -notmatch "ImageNotFoundException") {
-            Stop-WithMessage "ECR verification failed. AWS returned: $ecrCheckText"
-        }
-
-        Write-Host "ECR tag is unused. Continuing deployment." -ForegroundColor Green
-    }
-    finally {
-        Remove-Item $outFile, $errFile -Force -ErrorAction SilentlyContinue
-    }
-    Invoke-Checked "docker" @("build", "--platform", "linux/amd64", "-t", $localImage, ".") "BUILD PRODUCTION DOCKER IMAGE"
-
-    Write-Host "`n===== LOGIN TO ECR =====" -ForegroundColor Cyan
-    $password = & aws ecr get-login-password --region $AwsRegion --profile $AwsProfile
-    if ($LASTEXITCODE -ne 0 -or !$password) { Stop-WithMessage "Could not obtain ECR login token." }
     $password | & docker login --username AWS --password-stdin $ecrHost
-    if ($LASTEXITCODE -ne 0) { Stop-WithMessage "Docker ECR login failed." }
+    $password = $null
 
-    Invoke-Checked "docker" @("tag", $localImage, $image) "TAG IMAGE FOR ECR"
-    Invoke-Checked "docker" @("push", $image) "PUSH IMAGE TO ECR"
+    if ($LASTEXITCODE -ne 0) {
+        Stop-Now "Docker ECR login failed."
+    }
 
-    # Verify exact immutable tag in ECR.
-    Invoke-Checked "aws" @("ecr", "describe-images", "--repository-name", $EcrRepository, "--image-ids", "imageTag=$tag", "--region", $AwsRegion, "--profile", $AwsProfile, "--output", "table") "VERIFY ECR IMAGE"
+    Run-Checked "docker" @("tag", $localImage, $image) "TAG IMAGE"
 
-    # SSH connectivity check. Configure $SshKey above if the key is not in ssh-agent/default config.
-    $sshCheck = "test -d '$RemoteProject' && cd '$RemoteProject' && docker compose config --quiet && echo SSH_AND_COMPOSE_OK"
-    Invoke-Ssh $sshCheck "CHECK LIGHTSAIL SSH AND COMPOSE"
+    Run-Checked "docker" @("push", $image) "PUSH IMAGE TO ECR"
 
-    Write-Host "`nReady to deploy this image:" -ForegroundColor Yellow
-    Write-Host $image -ForegroundColor Yellow
-    $deployConfirm = Read-Host "Deploy to production Lightsail now? Type DEPLOY"
-    if ($deployConfirm -cne "DEPLOY") { Stop-WithMessage "Stopped before production deployment. Image is safely stored in ECR; website unchanged." }
+    Run-Checked "aws" @(
+        "ecr", "describe-images",
+        "--repository-name", $EcrRepository,
+        "--image-ids", "imageTag=$tag",
+        "--region", $AwsRegion,
+        "--profile", $AwsProfile,
+        "--output", "table"
+    ) "VERIFY ECR IMAGE"
 
-    # Remote deployment script: backup Compose, change app image only, pull, update app only,
-    # verify DB/Caddy container IDs, health-check, and automatically roll back on failure.
+    Write-Host "`nCommit: $commit" -ForegroundColor Yellow
+    Write-Host "Image: $image" -ForegroundColor Yellow
+
+    $confirm = Read-Host "`nDeploy to production? Type DEPLOY"
+
+    if ($confirm -cne "DEPLOY") {
+        Stop-Now "Cancelled. Image remains safely in ECR."
+    }
+
+    # Remote deployment: app only, preserve DB and Caddy.
     $remoteScript = @'
 #!/usr/bin/env bash
 set -Eeuo pipefail
+
 NEW_IMAGE="$1"
 cd /home/ubuntu/shivam-portfolio
 
 BACKUP="docker-compose.yml.autobackup-$(date +%Y%m%d-%H%M%S)"
 cp -p docker-compose.yml "$BACKUP"
+
 DB_BEFORE="$(docker compose ps -q db)"
 CADDY_BEFORE="$(docker compose ps -q caddy)"
 
 rollback() {
+  local original_status=$?
+  trap - ERR
+  set +e
+
   echo "DEPLOYMENT FAILED - attempting application-only rollback"
+
   cp -p "$BACKUP" docker-compose.yml
+
+  if [ $? -ne 0 ]; then
+    echo "CRITICAL: Could not restore the previous Compose file."
+    exit "$original_status"
+  fi
+
   docker compose config --quiet
-  docker compose up -d --no-deps app || true
-  echo "Rollback attempted. Backup: $BACKUP"
+
+  if [ $? -ne 0 ]; then
+    echo "CRITICAL: Restored Compose configuration is invalid."
+    exit "$original_status"
+  fi
+
+  docker compose up -d --no-deps app
+
+  if [ $? -ne 0 ]; then
+    echo "WARNING: Application rollback command failed."
+  else
+    echo "Application rollback command completed."
+  fi
+
+  echo "Previous Compose file: $BACKUP"
+  exit "$original_status"
 }
 trap rollback ERR
 
@@ -207,6 +435,7 @@ for i, line in enumerate(lines):
     if line.rstrip("\r\n") == "  app:":
         service_start = i
         break
+
 if service_start is None:
     raise SystemExit("Could not locate app service.")
 
@@ -221,11 +450,13 @@ for i in range(service_start + 1, service_end):
     if lines[i].startswith("    image:"):
         image_line = i
         break
+
 if image_line is None:
     raise SystemExit("Could not locate app image line.")
 
 indent = lines[image_line][:len(lines[image_line]) - len(lines[image_line].lstrip())]
 lines[image_line] = f"{indent}image: {new_image}\n"
+
 path.write_text("".join(lines))
 print("Updated only the app image reference.")
 PY
@@ -241,62 +472,110 @@ for n in $(seq 1 30); do
 done
 
 STATUS="$(docker inspect shivam-portfolio-app --format '{{.State.Health.Status}}')"
+
 if [ "$STATUS" != "healthy" ]; then
   docker compose logs --tail=100 app
-  echo "Application did not become healthy (status: $STATUS)"
+  echo "Application health check failed: $STATUS"
   false
 fi
 
 test "$DB_BEFORE" = "$(docker compose ps -q db)"
 test "$CADDY_BEFORE" = "$(docker compose ps -q caddy)"
 
-echo "===== PRODUCTION CONTAINERS ====="
 docker compose ps
-echo "===== DEPLOYED APP IMAGE ====="
+
+echo "===== DEPLOYED IMAGE ====="
 docker inspect shivam-portfolio-app --format '{{.Config.Image}}'
+
 echo "===== APP HEALTH ====="
 docker inspect shivam-portfolio-app --format '{{.State.Health.Status}}'
-echo "===== DATABASE AND CADDY PRESERVED ====="
+
 echo "DB and Caddy container IDs unchanged."
 
 trap - ERR
 echo "DEPLOYMENT_SUCCESS"
 '@
 
-    $remoteBytes = [System.Text.Encoding]::UTF8.GetBytes($remoteScript)
-    $remoteBase64 = [Convert]::ToBase64String($remoteBytes)
-    $remoteCommand = "echo '$remoteBase64' | base64 -d | bash -s -- '$image'"
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($remoteScript)
+    $base64 = [Convert]::ToBase64String($bytes)
 
-    Invoke-Ssh $remoteCommand "DEPLOY TO LIGHTSAIL (APP SERVICE ONLY)"
+    $remoteCommand = "echo '$base64' | base64 -d | bash -s -- '$image'"
 
-    # Public HTTPS checks after successful remote health check.
-    Write-Host "`n===== PUBLIC WEBSITE HEALTH CHECKS =====" -ForegroundColor Cyan
+    Run-SSH $remoteCommand "LIGHTSAIL APP-ONLY DEPLOYMENT"
+
+    # Public health checks.
+    Write-Host "`n===== PUBLIC WEBSITE CHECKS =====" -ForegroundColor Cyan
+
     foreach ($path in @("/", "/api/health", "/api/health/ready")) {
         $url = "$WebsiteUrl$path"
+
         try {
-            $response = Invoke-WebRequest -Uri $url -Method Get -TimeoutSec 30 -UseBasicParsing
+            $response = Invoke-WebRequest `
+                -Uri $url `
+                -Method Get `
+                -TimeoutSec 30 `
+                -UseBasicParsing
+
             Write-Host "$url -> HTTP $([int]$response.StatusCode)"
+
             if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) {
-                Stop-WithMessage "Health check failed for $url"
+                Stop-Now "Website health check failed: $url"
             }
-        } catch {
-            Stop-WithMessage "Public health check failed for $url : $($_.Exception.Message)"
+        }
+        catch {
+            Stop-Now "Public health check failed: $url"
         }
     }
 
-    Write-Host "`n===============================================" -ForegroundColor Green
-    Write-Host " DEPLOYMENT COMPLETED SUCCESSFULLY" -ForegroundColor Green
-    Write-Host "Git commit: $commit" -ForegroundColor Green
-    Write-Host "ECR image:  $image" -ForegroundColor Green
-    Write-Host "Website:    $WebsiteUrl" -ForegroundColor Green
-    Write-Host "===============================================" -ForegroundColor Green
+    Write-Host "`nDEPLOYMENT COMPLETED SUCCESSFULLY" -ForegroundColor Green
+    Write-Host "Commit: $commit"
+    Write-Host "Image: $image"
+    Write-Host "Website: $WebsiteUrl"
+}
+
+# =================================================
+# MAIN MENU
+# =================================================
+
+try {
+
+    Write-Host "`n============================================" -ForegroundColor Green
+    Write-Host " SHIVAM PORTFOLIO - DEPLOYMENT MANAGER" -ForegroundColor Green
+    Write-Host "============================================" -ForegroundColor Green
+
+    if (!(Test-Path -LiteralPath $ProjectRoot -PathType Container)) {
+        Stop-Now "Project folder not found."
+    }
+
+    Set-Location $ProjectRoot
+
+    foreach ($cmd in @("git", "node", "npm", "docker", "aws", "ssh", "gh")) {
+        Require-Command $cmd
+    }
+
+    Check-Repository
+
+    Run-Checked "gh" @("auth", "status") "VERIFY GITHUB AUTHENTICATION"
+
+    Write-Host "`n1. PREPARE GITHUB PULL REQUEST" -ForegroundColor Yellow
+    Write-Host "2. DEPLOY APPROVED MAIN TO AWS" -ForegroundColor Yellow
+    Write-Host "3. EXIT" -ForegroundColor Yellow
+
+    $choice = Read-Host "`nSelect option"
+
+    switch ($choice) {
+        "1" { Prepare-PR }
+        "2" { Deploy-Main }
+        "3" { Write-Host "Exiting." }
+        default { Stop-Now "Invalid option." }
+    }
+
 }
 catch {
     Write-Host "`nPROCESS STOPPED: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Review the error above. The script stops at the first failed check." -ForegroundColor Yellow
     exit 1
 }
 finally {
-    Write-Host "`nPress Enter to close this window..."
+    Write-Host "`nPress Enter to close..."
     [void](Read-Host)
 }
