@@ -1,22 +1,22 @@
 ﻿/* Google-inspired light theme palette */
 :root {
-  --bg: #080C08;
+  --bg: #080c08;
   --bg-2: #101810;
   --card: #172117;
 
   /* Google brand palette */
-  --accent: #76B900;
-  --accent-2: #A3E635;
-  --accent-2-text: #A3E635;
-  --google-blue: #76B900;
-  --google-red: #FF7777;
-  --google-yellow: #A3E635;
-  --google-green: #76B900;
+  --accent: #76b900;
+  --accent-2: #a3e635;
+  --accent-2-text: #a3e635;
+  --google-blue: #76b900;
+  --google-red: #ff7777;
+  --google-yellow: #a3e635;
+  --google-green: #76b900;
 
-  --success: #A3E635;
-  --danger: #FF7777;
-  --text: #F5F7F5;
-  --muted: #C2CCC2;
+  --success: #a3e635;
+  --danger: #ff7777;
+  --text: #f5f7f5;
+  --muted: #c2ccc2;
 
   --line: rgba(190, 220, 180, 0.18);
   --line-strong: rgba(190, 220, 180, 0.32);
@@ -42,4 +42,3 @@
   --nav-h: 72px;
   --space-section: clamp(4.5rem, 9vw, 8rem);
 }
-

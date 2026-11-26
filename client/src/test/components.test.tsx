@@ -54,38 +54,50 @@ describe('ExperienceTimeline', () => {
   it('is an accessible accordion: first role open, others toggle by click and keyboard', async () => {
     const user = userEvent.setup();
     wrap(<ExperienceTimeline />);
-    const [matrix, bell] = screen
-      .getAllByRole('button', { expanded: undefined })
-      .filter((b) => b.hasAttribute('aria-controls'));
+
+    const buttons = screen.getAllByRole('button').filter((b) => b.hasAttribute('aria-controls'));
+
+    const [lambton, matrix, bell] = buttons;
+
+    expect(buttons).toHaveLength(5);
+    expect(lambton).toHaveAttribute('aria-expanded', 'true');
+    expect(matrix).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(matrix!);
     expect(matrix).toHaveAttribute('aria-expanded', 'true');
-    expect(bell).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByText(/Recognized in performance reviews/)).toBeInTheDocument();
+
+    expect(
+      await screen.findByText(/Managed inventory operations, investigated shortages/),
+    ).toBeInTheDocument();
+
+    expect(lambton).toHaveAttribute('aria-expanded', 'false');
 
     await user.click(bell!);
     expect(bell).toHaveAttribute('aria-expanded', 'true');
-    expect(
-      await screen.findByText(/Guide and support a team of approximately four to five associates/),
-    ).toBeInTheDocument();
+
+    expect(await screen.findByText(/Led a team of 5–6 sales associates/)).toBeInTheDocument();
+
     expect(matrix).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByRole('region', { name: /Sales Associate/ })).toBeInTheDocument();
 
     bell!.focus();
     await user.keyboard('{Enter}');
     expect(bell).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('displays the dates verbatim', () => {
+  it('displays all five employment dates verbatim', () => {
     wrap(<ExperienceTimeline />);
+
     for (const d of [
-      'August 2022 – Present',
-      'February 2022 – June 2024',
-      'December 2021 – September 2022',
+      'May 2023 \u2013 August 2023',
+      'August 2022 \u2013 November 2026',
+      'February 2022 \u2013 June 2024',
+      'March 2021 \u2013 August 2021',
+      'October 2020 \u2013 December 2020',
     ]) {
       expect(screen.getByText(d)).toBeInTheDocument();
     }
   });
 });
-
 describe('Operations meets technology', () => {
   it('reveals actual experience and a clearly labelled illustrative idea for the selected step', async () => {
     const user = userEvent.setup();
@@ -267,5 +279,3 @@ describe('project detail', () => {
     expect(screen.queryByRole('link', { name: /github|live demo/i })).toBeNull();
   });
 });
-
-

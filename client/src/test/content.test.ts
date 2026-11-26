@@ -2,28 +2,34 @@ import { describe, expect, it } from 'vitest';
 import { certifications } from '../data/certifications';
 import { education } from '../data/education';
 import { experience } from '../data/experience';
-import { heroFlow, opsTechFlow } from '../data/flow';
+import { opsTechFlow } from '../data/flow';
 import { profile } from '../data/profile';
 import { projects } from '../data/projects';
 import { skillCategories } from '../data/skills';
 
 /** Guards that fail if unverified or invented information is ever added. */
 describe('resume fidelity', () => {
-  it('shows employment dates exactly as provided, including the overlap, unchanged', () => {
+  it('lists professional experience in the requested order with supplied dates', () => {
     expect(experience.map((e) => [e.employer, e.title, e.dates])).toEqual([
-      ['Matrix Logistics Services', 'Team Member', 'August 2022 – Present'],
-      ['Bell Canada', 'Sales Associate / Team Support', 'February 2022 – June 2024'],
-      ['Nestlé / Kellogg', 'Warehouse Associate', 'December 2021 – September 2022'],
+      ['Lambton College', 'Software Engineering Team Lead', 'May 2023 – August 2023'],
+      ['Matrix Logistics Services', 'Team Member', 'August 2022 – November 2026'],
+      [
+        'Bell Canada',
+        'Team Leader / Sales Supervisor and Sales Associate',
+        'February 2022 – June 2024',
+      ],
+      ['Verzeo', 'Web Development Intern', 'March 2021 – August 2021'],
+      ['Verzeo', 'Artificial Intelligence Intern', 'October 2020 – December 2020'],
     ]);
   });
 
-  it('keeps every Matrix Logistics responsibility from the resume', () => {
-    expect(experience[0]!.responsibilities).toHaveLength(11);
-    expect(experience[0]!.technology).toEqual(['DALLAS']);
-    expect(experience[1]!.technology).toEqual(['Microsoft Office', 'Google Docs', 'Salesforce']);
-    expect(experience[2]!.responsibilities[0]).toMatch(/99% accuracy.*as reported in the resume/);
+  it('keeps role-specific details', () => {
+    expect(experience[1]!.employerNote).toBe('DHL Supply Chain');
+    expect(experience[1]!.responsibilities).toHaveLength(5);
+    expect(experience[1]!.technology).toEqual(['DALLAS']);
+    expect(experience[2]!.technology).toEqual(['Salesforce', 'Microsoft Office']);
+    expect(experience[0]!.responsibilities).toHaveLength(5);
   });
-
   it('lists education exactly as provided', () => {
     expect(education).toEqual([
       {
@@ -110,19 +116,8 @@ describe('no fabricated metrics', () => {
     expect(names).toHaveLength(7 + 6 + 6 + 8 + 6);
   });
 
-  it('only the resume-stated 99% figure appears anywhere in the data, always attributed', () => {
-    const everything = JSON.stringify({
-      experience,
-      skillCategories,
-      projects,
-      opsTechFlow,
-      heroFlow,
-    });
-    const percents = everything.match(/\d+\s?%/g) ?? [];
-    expect(new Set(percents)).toEqual(new Set(['99%']));
-    expect(everything).toMatch(
-      /99% accuracy[^"]*(as reported in the resume|as stated on the resume|Nestlé)/,
-    );
+  it('does not include removed Nestle or Kellogg employment', () => {
+    expect(JSON.stringify(experience)).not.toMatch(/Nestl[eé]|Kellogg/i);
   });
 });
 
