@@ -1,4 +1,4 @@
-﻿#requires -Version 5.1
+#requires -Version 5.1
 $ErrorActionPreference = "Stop"
 
 # ================= CONFIGURATION =================
@@ -496,6 +496,8 @@ trap - ERR
 echo "DEPLOYMENT_SUCCESS"
 '@
 
+    # Bash requires Unix LF line endings, not Windows CRLF.
+    $remoteScript = $remoteScript -replace '\r\n?', "`n"
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($remoteScript)
     $base64 = [Convert]::ToBase64String($bytes)
 
