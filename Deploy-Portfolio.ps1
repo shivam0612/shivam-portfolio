@@ -81,8 +81,39 @@ function Prepare-PR {
 
     $branch = (& git branch --show-current).Trim()
 
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($branch)) {
+        Stop-Now "Could not determine the current Git branch."
+    }
+
     if ($branch -ne "main") {
-        Stop-Now "Start Option 1 from main."
+
+        Write-Host "`nCurrent branch: $branch" -ForegroundColor Yellow
+
+        $trackedChanges = @(& git status --porcelain --untracked-files=no)
+
+        if ($LASTEXITCODE -ne 0) {
+            Stop-Now "Could not inspect tracked Git changes."
+        }
+
+        if ($trackedChanges.Count -gt 0) {
+            Stop-Now "Cannot switch to main: tracked files contain staged or unstaged changes. Commit or safely preserve them first."
+        }
+
+        Write-Host "Working tree is clean. Returning to main..." -ForegroundColor Cyan
+
+        Run-Checked "git" @("switch", "main") "SWITCH TO MAIN"
+
+        $branch = (& git branch --show-current).Trim()
+
+        if ($LASTEXITCODE -ne 0 -or $branch -ne "main") {
+            Stop-Now "Could not safely switch to main."
+        }
+
+        $mainChanges = @(& git status --porcelain --untracked-files=no)
+
+        if ($LASTEXITCODE -ne 0 -or $mainChanges.Count -gt 0) {
+            Stop-Now "Main is not clean. Stopping safely."
+        }
     }
 
 
