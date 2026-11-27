@@ -308,6 +308,19 @@ function Prepare-PR {
 
     Run-Checked "git" @("push", "-u", "origin", $featureBranch) "PUSH FEATURE BRANCH"
 
+    $prTitle = Read-Host "`nEnter a clear GitHub Pull Request title"
+
+    if ([string]::IsNullOrWhiteSpace($prTitle)) {
+        Stop-Now "Pull request title cannot be empty."
+    }
+
+    Write-Host "`nPull request title: $prTitle" -ForegroundColor Cyan
+    $titleConfirmation = Read-Host "Type CREATE to confirm this title"
+
+    if ($titleConfirmation -cne "CREATE") {
+        Stop-Now "Pull request creation cancelled."
+    }
+
     Write-Host "`nCreating GitHub pull request..." -ForegroundColor Yellow
 
     Run-Checked "gh" @(
@@ -315,7 +328,8 @@ function Prepare-PR {
         "--repo", $GitHubRepo,
         "--base", "main",
         "--head", $featureBranch,
-        "--fill"
+        "--title", $prTitle,
+        "--body", "Prepared by the portfolio deployment manager. Local project checks completed before PR creation."
     ) "CREATE PULL REQUEST"
 
     $prNumber = (& gh pr view $featureBranch `
@@ -398,10 +412,38 @@ function Deploy-Main {
         Stop-Now "Unable to retrieve GitHub Actions."
     }
 
-    $runs = @($json | ConvertFrom-Json)
+    # Wait for GitHub Actions workflows to appear for this exact commit.
+    $runs = @()
+    $maxAttempts = 12
+
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+        $json = & gh run list `
+            --repo $GitHubRepo `
+            --branch main `
+            --commit $commit `
+            --limit 20 `
+            --json databaseId,status,conclusion,workflowName
+
+        if ($LASTEXITCODE -ne 0) {
+            Stop-Now "Unable to retrieve GitHub Actions."
+        }
+
+        if ($json) {
+            $runs = @($json | ConvertFrom-Json)
+        }
+
+        if ($runs.Count -gt 0) {
+            break
+        }
+
+        if ($attempt -lt $maxAttempts) {
+            Write-Host "No workflow runs found yet. Checking again in 5 seconds ($attempt/$maxAttempts)..." -ForegroundColor Yellow
+            Start-Sleep -Seconds 5
+        }
+    }
 
     if ($runs.Count -eq 0) {
-        Stop-Now "No GitHub Actions runs found for this exact commit."
+        Stop-Now "No GitHub Actions runs found for this exact commit after 60 seconds."
     }
 
     foreach ($run in $runs) {
