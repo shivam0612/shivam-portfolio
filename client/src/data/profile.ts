@@ -55,8 +55,8 @@ export const profile = {
    * them everywhere. Unset = hidden; nothing is invented.
    */
   social: {
-    linkedin: httpsUrl(env.VITE_LINKEDIN_URL),
-    github: httpsUrl(env.VITE_GITHUB_URL),
+    linkedin: httpsUrl(env.VITE_LINKEDIN_URL) ?? 'https://www.linkedin.com/in/shivampatel6/',
+    github: httpsUrl(env.VITE_GITHUB_URL) ?? 'https://github.com/shivam0612',
   },
 
   /** Set VITE_LOCATION (e.g. "Ontario, Canada") to show it. Unset = hidden. */

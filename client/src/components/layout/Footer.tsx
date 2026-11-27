@@ -55,15 +55,15 @@ export function Footer() {
               <span>{profile.location}</span>
             </li>
           )}
-          <li>
-            <SocialLinks />
-          </li>
         </ul>
       </div>
       <div className="container footer__base">
-        <p>
-          © {new Date().getFullYear()} {profile.name}
-        </p>
+        <div className="footer__base-content">
+          <p>
+            © {new Date().getFullYear()} {profile.name}
+          </p>
+          <SocialLinks className="footer__base-social" />
+        </div>
         <Link to="/privacy">Privacy Policy</Link>
       </div>
     </footer>
