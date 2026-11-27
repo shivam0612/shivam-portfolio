@@ -308,6 +308,19 @@ function Prepare-PR {
 
     Run-Checked "git" @("push", "-u", "origin", $featureBranch) "PUSH FEATURE BRANCH"
 
+    $prTitle = Read-Host "`nEnter a clear GitHub Pull Request title"
+
+    if ([string]::IsNullOrWhiteSpace($prTitle)) {
+        Stop-Now "Pull request title cannot be empty."
+    }
+
+    Write-Host "`nPull request title: $prTitle" -ForegroundColor Cyan
+    $titleConfirmation = Read-Host "Type CREATE to confirm this title"
+
+    if ($titleConfirmation -cne "CREATE") {
+        Stop-Now "Pull request creation cancelled."
+    }
+
     Write-Host "`nCreating GitHub pull request..." -ForegroundColor Yellow
 
     Run-Checked "gh" @(
@@ -315,7 +328,8 @@ function Prepare-PR {
         "--repo", $GitHubRepo,
         "--base", "main",
         "--head", $featureBranch,
-        "--fill"
+        "--title", $prTitle,
+        "--body", "Prepared by the portfolio deployment manager. Local project checks completed before PR creation."
     ) "CREATE PULL REQUEST"
 
     $prNumber = (& gh pr view $featureBranch `
@@ -329,11 +343,77 @@ function Prepare-PR {
 
     Write-Host "Created PR number: $prNumber" -ForegroundColor Green
 
-    Run-Checked "gh" @(
-        "pr", "checks", $prNumber,
-        "--repo", $GitHubRepo,
-        "--watch"
-    ) "VERIFY PULL REQUEST CHECKS"
+        Write-Host "`nWaiting for GitHub Actions checks..." -ForegroundColor Yellow
+
+    $checksComplete = $false
+    $maxAttempts = 36
+
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+
+        $json = & gh pr view $prNumber `
+            --repo $GitHubRepo `
+            --json statusCheckRollup
+
+        if ($LASTEXITCODE -ne 0) {
+            Stop-Now "Unable to retrieve pull request checks."
+        }
+
+        $prData = $json | ConvertFrom-Json
+        $checks = @($prData.statusCheckRollup)
+
+        if ($checks.Count -eq 0) {
+            Write-Host "No checks registered yet. Waiting... ($attempt/$maxAttempts)" -ForegroundColor Yellow
+        }
+        else {
+            $pendingChecks = @()
+            $failedChecks = @()
+
+            foreach ($check in $checks) {
+
+                if ($check.__typename -eq "CheckRun") {
+
+                    if ($check.status -ne "COMPLETED") {
+                        $pendingChecks += $check.name
+                    }
+                    elseif ($check.conclusion -notin @("SUCCESS", "SKIPPED", "NEUTRAL")) {
+                        $failedChecks += "$($check.name): $($check.conclusion)"
+                    }
+                }
+                elseif ($check.__typename -eq "StatusContext") {
+
+                    if ($check.state -eq "PENDING") {
+                        $pendingChecks += $check.context
+                    }
+                    elseif ($check.state -ne "SUCCESS") {
+                        $failedChecks += "$($check.context): $($check.state)"
+                    }
+                }
+                else {
+                    $pendingChecks += "Unknown check type"
+                }
+            }
+
+            if ($failedChecks.Count -gt 0) {
+                Stop-Now "Pull request checks failed: $($failedChecks -join '; ')"
+            }
+
+            if ($pendingChecks.Count -eq 0) {
+                $checksComplete = $true
+                Write-Host "`nAll $($checks.Count) pull request checks passed." -ForegroundColor Green
+                break
+            }
+
+            Write-Host "Checks still running: $($pendingChecks -join ', ')" -ForegroundColor Yellow
+        }
+
+        if ($attempt -lt $maxAttempts) {
+            Start-Sleep -Seconds 10
+        }
+    }
+
+    if (-not $checksComplete) {
+        Stop-Now "Pull request checks did not complete successfully within 6 minutes."
+    }
 
     Run-Checked "gh" @(
         "pr", "view", $prNumber,
@@ -398,10 +478,38 @@ function Deploy-Main {
         Stop-Now "Unable to retrieve GitHub Actions."
     }
 
-    $runs = @($json | ConvertFrom-Json)
+    # Wait for GitHub Actions workflows to appear for this exact commit.
+    $runs = @()
+    $maxAttempts = 12
+
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+        $json = & gh run list `
+            --repo $GitHubRepo `
+            --branch main `
+            --commit $commit `
+            --limit 20 `
+            --json databaseId,status,conclusion,workflowName
+
+        if ($LASTEXITCODE -ne 0) {
+            Stop-Now "Unable to retrieve GitHub Actions."
+        }
+
+        if ($json) {
+            $runs = @($json | ConvertFrom-Json)
+        }
+
+        if ($runs.Count -gt 0) {
+            break
+        }
+
+        if ($attempt -lt $maxAttempts) {
+            Write-Host "No workflow runs found yet. Checking again in 5 seconds ($attempt/$maxAttempts)..." -ForegroundColor Yellow
+            Start-Sleep -Seconds 5
+        }
+    }
 
     if ($runs.Count -eq 0) {
-        Stop-Now "No GitHub Actions runs found for this exact commit."
+        Stop-Now "No GitHub Actions runs found for this exact commit after 60 seconds."
     }
 
     foreach ($run in $runs) {
