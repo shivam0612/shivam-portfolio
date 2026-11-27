@@ -166,14 +166,23 @@ describe('Hero', () => {
 });
 
 describe('config-gated elements', () => {
-  it('renders no social links and no resume button when nothing is configured', () => {
-    const { container } = wrap(
+  it('renders the configured LinkedIn and GitHub profiles', () => {
+    wrap(
       <>
         <SocialLinks />
         <ResumeButton />
       </>,
     );
-    expect(container).toBeEmptyDOMElement();
+
+    expect(screen.getByRole('link', { name: /LinkedIn/ })).toHaveAttribute(
+      'href',
+      'https://www.linkedin.com/in/shivampatel6/',
+    );
+
+    expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute(
+      'href',
+      'https://github.com/shivam0612',
+    );
   });
 });
 
@@ -254,7 +263,25 @@ describe('contact page', () => {
     for (const label of ['Full name', 'Email address', 'Subject', 'Message', 'Inquiry type']) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     }
-    expect(screen.queryByRole('link', { name: /linkedin|github/i })).toBeNull();
+    const linkedinLinks = screen.getAllByRole('link', { name: /LinkedIn/ });
+    const githubLinks = screen.getAllByRole('link', { name: /GitHub/ });
+
+    expect(linkedinLinks).toHaveLength(2);
+    expect(githubLinks).toHaveLength(2);
+
+    linkedinLinks.forEach((link) =>
+      expect(link).toHaveAttribute(
+        'href',
+        'https://www.linkedin.com/in/shivampatel6/',
+      ),
+    );
+
+    githubLinks.forEach((link) =>
+      expect(link).toHaveAttribute(
+        'href',
+        'https://github.com/shivam0612',
+      ),
+    );
   });
 });
 
@@ -276,6 +303,6 @@ describe('project detail', () => {
     ]) {
       expect(screen.getByRole('heading', { name: h })).toBeInTheDocument();
     }
-    expect(screen.queryByRole('link', { name: /github|live demo/i })).toBeNull();
+    expect(screen.queryByRole('link', { name: /github(?! \(opens in a new tab\))|live demo/i })).toBeNull();
   });
 });

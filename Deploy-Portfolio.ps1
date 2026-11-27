@@ -79,6 +79,7 @@ function Prepare-PR {
 
     Write-Host "`nOPTION 1: PREPARE GITHUB PULL REQUEST" -ForegroundColor Green
 
+    # Ensure we are working from main.
     $branch = (& git branch --show-current).Trim()
 
     if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($branch)) {
@@ -86,9 +87,6 @@ function Prepare-PR {
     }
 
     if ($branch -ne "main") {
-
-        Write-Host "`nCurrent branch: $branch" -ForegroundColor Yellow
-
         $trackedChanges = @(& git status --porcelain --untracked-files=no)
 
         if ($LASTEXITCODE -ne 0) {
@@ -96,18 +94,10 @@ function Prepare-PR {
         }
 
         if ($trackedChanges.Count -gt 0) {
-            Stop-Now "Cannot switch to main: tracked files contain staged or unstaged changes. Commit or safely preserve them first."
+            Stop-Now "Cannot switch branches because tracked changes exist."
         }
-
-        Write-Host "Working tree is clean. Returning to main..." -ForegroundColor Cyan
 
         Run-Checked "git" @("switch", "main") "SWITCH TO MAIN"
-
-        $branch = (& git branch --show-current).Trim()
-
-        if ($LASTEXITCODE -ne 0 -or $branch -ne "main") {
-            Stop-Now "Could not safely switch to main."
-        }
 
         $mainChanges = @(& git status --porcelain --untracked-files=no)
 
@@ -115,7 +105,6 @@ function Prepare-PR {
             Stop-Now "Main is not clean. Stopping safely."
         }
     }
-
 
     Run-Checked "git" @("fetch", "origin") "FETCH GITHUB"
 
@@ -133,62 +122,166 @@ function Prepare-PR {
         Run-Checked "git" @("pull", "--ff-only", "origin", "main") "UPDATE MAIN"
     }
 
-    Check-Project
-
-    Write-Host "`n===== MANUAL STAGING VALIDATION =====" -ForegroundColor Cyan
-
-    $files = @(& git diff --cached --name-only)
+    # Collect tracked changes.
+    $stagedFiles = @(& git diff --cached --name-only)
 
     if ($LASTEXITCODE -ne 0) {
         Stop-Now "Could not inspect staged files."
     }
 
-    if ($files.Count -eq 0) {
-        Stop-Now "Nothing is staged. Manually stage only the intended files, then run Option 1 again."
-    }
-
-    $unstagedFiles = @(& git diff --name-only)
+    $modifiedFiles = @(& git diff --name-only)
 
     if ($LASTEXITCODE -ne 0) {
-        Stop-Now "Could not inspect unstaged changes."
+        Stop-Now "Could not inspect modified files."
     }
 
-    if ($unstagedFiles.Count -gt 0) {
-        Write-Host "These tracked files still have unstaged changes:" -ForegroundColor Yellow
-        $unstagedFiles | ForEach-Object { Write-Host "  $_" }
-        Stop-Now "Stage or resolve all intended tracked changes before continuing."
+    $untrackedFiles = @(& git ls-files --others --exclude-standard)
+
+    if ($LASTEXITCODE -ne 0) {
+        Stop-Now "Could not inspect untracked files."
     }
 
-    $unsafeFiles = @($files | Where-Object {
-        $_ -match '(?i)(^|/)([^/]*backup[^/]*)(/|$)|\.backup(?:-|$)|(^|/)\.env(?:\.|$)|\.pem$|secret|credential'
-    })
+    $trackedFiles = @(
+        @($stagedFiles) + @($modifiedFiles) |
+        Where-Object { ![string]::IsNullOrWhiteSpace($_) } |
+        Sort-Object -Unique
+    )
 
-    if ($unsafeFiles.Count -gt 0) {
-        Write-Host "Rejected files:" -ForegroundColor Red
-        $unsafeFiles | ForEach-Object { Write-Host "  $_" }
-        Stop-Now "Backup or potentially sensitive files cannot be submitted."
+    # Reject unsafe paths.
+    function Test-UnsafeSubmissionFile([string]$File) {
+        $normalized = $File -replace '\\', '/'
+
+        return $normalized -match '(?i)(^|/)[^/]*backup[^/]*(/|$)|\.backup(?:-|$)|(^|/)\.env(?:$|\.)|\.pem$|(^|/)(node_modules|dist|coverage|\.next)(/|$)|(^|/)(secrets?|credentials?)(/|$)|(^|/)[^/]*(secret|credential)[^/]*$'
     }
 
-    Run-Checked "git" @("diff", "--cached", "--check") "CHECK PATCH"
+    $unsafeTracked = @(
+        $trackedFiles | Where-Object { Test-UnsafeSubmissionFile $_ }
+    )
 
-    Write-Host "`nFILES TO SUBMIT:" -ForegroundColor Yellow
-
-    $files | ForEach-Object {
-        Write-Host "  $_"
+    if ($unsafeTracked.Count -gt 0) {
+        Write-Host "`nUNSAFE TRACKED FILES DETECTED:" -ForegroundColor Red
+        $unsafeTracked | ForEach-Object { Write-Host "  $_" }
+        Stop-Now "Resolve unsafe tracked changes before preparing a PR."
     }
 
-    if ($files | Where-Object {
-        $_ -match '(^|/)(\.env($|\.)|.*\.pem$|.*secret.*|.*credential.*)'
-    }) {
-        Stop-Now "Potential secret detected in staged files."
+    # Exclude unsafe untracked files automatically.
+    $safeUntracked = @(
+        $untrackedFiles |
+        Where-Object {
+            ![string]::IsNullOrWhiteSpace($_) -and
+            !(Test-UnsafeSubmissionFile $_)
+        } |
+        Sort-Object -Unique
+    )
+
+    $excludedUntracked = @(
+        $untrackedFiles | Where-Object { Test-UnsafeSubmissionFile $_ }
+    )
+
+    if ($excludedUntracked.Count -gt 0) {
+        Write-Host "`nAutomatically excluded backup/sensitive files:" -ForegroundColor Yellow
+        $excludedUntracked | ForEach-Object { Write-Host "  $_" }
     }
 
-    $confirm = Read-Host "`nReview files carefully. Type YES to continue"
+    if ($trackedFiles.Count -eq 0 -and $safeUntracked.Count -eq 0) {
+        Stop-Now "No eligible changes were found."
+    }
+
+    # Show tracked changes.
+    Write-Host "`nTRACKED FILES PROPOSED FOR STAGING:" -ForegroundColor Cyan
+
+    if ($trackedFiles.Count -eq 0) {
+        Write-Host "  None"
+    }
+    else {
+        $trackedFiles | ForEach-Object { Write-Host "  $_" }
+    }
+
+    # Ask individually about untracked files.
+    $approvedUntracked = @()
+
+    foreach ($file in $safeUntracked) {
+        Write-Host "`nNew untracked file: $file" -ForegroundColor Yellow
+        $answer = Read-Host "Include this file? Type YES to include"
+
+        if ($answer -ceq "YES") {
+            $approvedUntracked += $file
+        }
+        else {
+            Write-Host "Excluded: $file" -ForegroundColor DarkYellow
+        }
+    }
+
+    $approvedFiles = @(
+        @($trackedFiles) + @($approvedUntracked) |
+        Sort-Object -Unique
+    )
+
+    if ($approvedFiles.Count -eq 0) {
+        Stop-Now "No files were approved."
+    }
+
+    Write-Host "`nFINAL FILE LIST:" -ForegroundColor Green
+    $approvedFiles | ForEach-Object { Write-Host "  $_" }
+
+    $confirm = Read-Host "`nType STAGE to stage exactly these files"
+
+    if ($confirm -cne "STAGE") {
+        Stop-Now "Cancelled. No files were staged by this workflow."
+    }
+
+    # Stage only approved files.
+    Run-Checked "git" (@("add", "--") + $approvedFiles) "STAGE APPROVED FILES"
+
+    # Validate staging.
+    $remainingModified = @(& git diff --name-only)
+
+    if ($LASTEXITCODE -ne 0 -or $remainingModified.Count -gt 0) {
+        Write-Host "`nRemaining unstaged tracked changes:" -ForegroundColor Yellow
+        $remainingModified | ForEach-Object { Write-Host "  $_" }
+        Stop-Now "Unexpected unstaged tracked changes remain."
+    }
+
+    $files = @(& git diff --cached --name-only)
+
+    if ($LASTEXITCODE -ne 0 -or $files.Count -eq 0) {
+        Stop-Now "No staged changes were found."
+    }
+
+    $unsafeStaged = @($files | Where-Object { Test-UnsafeSubmissionFile $_ })
+
+    if ($unsafeStaged.Count -gt 0) {
+        Stop-Now "Unsafe file detected in staged changes."
+    }
+
+    Run-Checked "git" @("diff", "--cached", "--check") "CHECK STAGED PATCH"
+
+    Write-Host "`nVERIFIED STAGED FILES:" -ForegroundColor Green
+    $files | ForEach-Object { Write-Host "  $_" }
+
+    Run-Checked "git" @("diff", "--cached", "--stat") "STAGED CHANGE SUMMARY"
+
+    # Confirm before tests and builds.
+    $confirm = Read-Host "`nType YES to run all tests and production builds"
 
     if ($confirm -cne "YES") {
-        Stop-Now "Cancelled."
+        Stop-Now "Cancelled before validation."
     }
 
+    Check-Project
+
+    # Ensure builds did not introduce additional tracked changes.
+    $remainingModified = @(& git diff --name-only)
+
+    if ($LASTEXITCODE -ne 0 -or $remainingModified.Count -gt 0) {
+        Write-Host "`nUnexpected changes after validation:" -ForegroundColor Yellow
+        $remainingModified | ForEach-Object { Write-Host "  $_" }
+        Stop-Now "Builds introduced unstaged changes. Review before continuing."
+    }
+
+    Run-Checked "git" @("diff", "--cached", "--check") "FINAL PATCH VALIDATION"
+
+    # Create branch only after successful validation.
     $featureBranch = "feature/portfolio-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 
     Run-Checked "git" @("switch", "-c", $featureBranch) "CREATE FEATURE BRANCH"
@@ -199,7 +292,19 @@ function Prepare-PR {
         Stop-Now "Commit message is required."
     }
 
+    $confirm = Read-Host "`nType COMMIT to create the commit"
+
+    if ($confirm -cne "COMMIT") {
+        Stop-Now "Cancelled before commit."
+    }
+
     Run-Checked "git" @("commit", "-m", $message) "COMMIT CHANGES"
+
+    $confirm = Read-Host "`nType PUSH to push the feature branch to GitHub"
+
+    if ($confirm -cne "PUSH") {
+        Stop-Now "Commit created locally. Push was cancelled."
+    }
 
     Run-Checked "git" @("push", "-u", "origin", $featureBranch) "PUSH FEATURE BRANCH"
 

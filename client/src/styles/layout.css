@@ -1,4 +1,4 @@
-﻿/* ---------- app shell ---------- */
+/* ---------- app shell ---------- */
 .app-shell[data-intro='checking'],
 .app-shell[data-intro='splash'] {
   visibility: hidden;
@@ -372,6 +372,20 @@
 }
 .footer__base p {
   margin: 0;
+}
+.footer__base-content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer__base .social {
+  gap: 0.45rem;
+}
+.footer__base .social a {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
 }
 
 /* ---------- intro splash ---------- */

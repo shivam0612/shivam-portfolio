@@ -70,8 +70,8 @@ describe('resume fidelity', () => {
   });
 
   it('hides everything that was not provided by default', () => {
-    expect(profile.social.linkedin).toBeNull();
-    expect(profile.social.github).toBeNull();
+    expect(profile.social.linkedin).toBe('https://www.linkedin.com/in/shivampatel6/');
+    expect(profile.social.github).toBe('https://github.com/shivam0612');
     expect(profile.location).toBeNull();
     expect(profile.availability.show).toBe(false);
     expect(profile.resumeUrl).toBe('');
