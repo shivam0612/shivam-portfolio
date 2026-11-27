@@ -270,17 +270,11 @@ describe('contact page', () => {
     expect(githubLinks).toHaveLength(2);
 
     linkedinLinks.forEach((link) =>
-      expect(link).toHaveAttribute(
-        'href',
-        'https://www.linkedin.com/in/shivampatel6/',
-      ),
+      expect(link).toHaveAttribute('href', 'https://www.linkedin.com/in/shivampatel6/'),
     );
 
     githubLinks.forEach((link) =>
-      expect(link).toHaveAttribute(
-        'href',
-        'https://github.com/shivam0612',
-      ),
+      expect(link).toHaveAttribute('href', 'https://github.com/shivam0612'),
     );
   });
 });
@@ -303,6 +297,8 @@ describe('project detail', () => {
     ]) {
       expect(screen.getByRole('heading', { name: h })).toBeInTheDocument();
     }
-    expect(screen.queryByRole('link', { name: /github(?! \(opens in a new tab\))|live demo/i })).toBeNull();
+    expect(
+      screen.queryByRole('link', { name: /github(?! \(opens in a new tab\))|live demo/i }),
+    ).toBeNull();
   });
 });
