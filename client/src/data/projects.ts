@@ -89,7 +89,11 @@ export const projects: Project[] = [
       'Expand automated monitoring and alerting.',
       'Document a repeatable disaster-recovery procedure.',
     ],
-    repoUrl: null,
+    coverImage: {
+      src: '/images/projects/aws-portfolio-home.webp',
+      alt: 'Home page of shivampatel.site, the AWS-hosted portfolio',
+    },
+    repoUrl: 'https://github.com/shivam0612/shivam-portfolio',
     liveUrl: 'https://shivampatel.site',
   },
   {

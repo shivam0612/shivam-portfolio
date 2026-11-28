@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Project } from '../../data/types';
 import { useSpotlight } from '../../hooks/useSpotlight';
 import { Tilt } from '../animations/Tilt';
+import { GithubIcon } from '../common/Icons';
 import { StatusBadge } from '../common/StatusBadge';
 import { ProjectIllustration } from './ProjectIllustration';
 
@@ -21,7 +22,19 @@ export function ProjectCard({ project }: { project: Project }) {
         data-cursor-label="EXPLORE"
       >
         <div className="project__art">
-          <ProjectIllustration kind={project.illustration} />
+          {project.coverImage ? (
+            <img
+              className="project__shot"
+              src={project.coverImage.src}
+              alt={project.coverImage.alt}
+              width={1919}
+              height={1079}
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <ProjectIllustration kind={project.illustration} />
+          )}
           <StatusBadge status={project.status} />
         </div>
         <div className="project__body">
@@ -54,6 +67,7 @@ export function ProjectCard({ project }: { project: Project }) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
+                <GithubIcon size={16} className="project__ext-icon" />
                 GitHub
               </a>
             )}

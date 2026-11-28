@@ -422,7 +422,22 @@
 }
 .detail__links {
   display: flex;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 2rem;
+}
+.detail__gh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.detail__art .detail__shot {
+  display: block;
+  width: min(100%, 64rem);
+  height: auto;
+  margin-inline: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
 }
 
 /* ---------- legal + 404 ---------- */
