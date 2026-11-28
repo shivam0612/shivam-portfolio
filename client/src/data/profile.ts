@@ -22,24 +22,24 @@ const text = (value: string | undefined) => (value ?? '').trim() || null;
 export const profile = {
   name: 'Shivam Patel',
   initials: 'SP',
-  headline: 'Supply Chain & Operations | Computer Science | Technology-Driven Process Improvement',
-  altHeadline: 'Bridging Supply Chain Operations and Technology.',
-  heroLabel: 'SUPPLY CHAIN × TECHNOLOGY',
+  headline: 'AWS Cloud & DevOps | Software Engineering | Technical Leadership & Mentoring',
+  altHeadline: 'Building, deploying & supporting cloud applications.',
+  heroLabel: 'CLOUD ENGINEERING × SOFTWARE DEVELOPMENT × TECHNICAL LEADERSHIP',
   heroSupporting:
-    'Operations professional with a computer science background, hands-on warehouse experience, inventory control expertise, and a passion for improving operational efficiency through people, processes, and technology.',
+    'Computer Science graduate and AWS-certified professional focused on cloud infrastructure, DevOps, and software engineering. Hands-on experience deploying an AWS-hosted application, building full-stack software, leading teams, and helping others learn through coaching and knowledge sharing.',
   supportingStatement:
-    'An operations professional with a computer science background, hands-on warehouse experience, inventory control expertise, team-support experience, and an interest in using technology to improve operational efficiency.',
+    'Computer Science graduate with postgraduate education in Computer Software Engineering, AWS Solutions Architect – Associate and Cloud Practitioner certifications, and practical experience deploying a containerized full-stack application to AWS. Combines software development, cloud deployment, automation, team leadership, coaching, and knowledge sharing across technical and professional environments.',
 
   /** Shorter version for the homepage. Meaning preserved from the resume summary. */
   summaryShort:
-    'Motivated and detail-oriented operations and supply chain professional with over four years of hands-on experience in warehouse operations, inventory control, team leadership, and customer service in fast-paced DHL Supply Chain / Matrix Logistics Services environments.',
+    'Computer Science graduate with a postgraduate degree in Computer Software Engineering and AWS certifications in Solutions Architecture and Cloud Practitioner fundamentals. Hands-on experience building, deploying, and maintaining an AWS-hosted full-stack application using Docker, Amazon ECR, AWS Lightsail, Linux, HTTPS, DNS, and deployment automation.',
 
   /** Complete resume summary, split into paragraphs for the About page. */
   summaryFull: [
-    'Motivated and detail-oriented operations and supply chain professional with over four years of hands-on experience in warehouse operations, inventory control, team leadership, and customer service in fast-paced DHL Supply Chain / Matrix Logistics Services environments.',
-    'Comprehensive working knowledge of DC30 processes, including Replenishment, Shorts resolution, and Selection, with a consistent record of outstanding attendance, productivity, and operational knowledge.',
-    'Proven ability to train and support new associates, operate material handling equipment, and adapt quickly across multiple warehouse functions.',
-    'Interested in contributing to safe, efficient warehouse operations, team development, KPI performance, and continuous improvement.',
+    'Computer Science graduate with a postgraduate degree in Computer Software Engineering and AWS certifications in Solutions Architecture and Cloud Practitioner fundamentals. Hands-on experience building, deploying, and maintaining an AWS-hosted full-stack application using Docker, Amazon ECR, AWS Lightsail, Linux, HTTPS, DNS, and deployment automation.',
+    'Technical foundation in full-stack development, REST APIs, databases, software engineering practices, and AI/ML, complemented by practical cloud infrastructure and application deployment experience.',
+    'Professional experience also includes software engineering team leadership, web development, AI/ML project work, sales-team supervision at Bell Canada, and logistics operations at Matrix Logistics Services (DHL Supply Chain).',
+    'Seeking opportunities across AWS Cloud Engineering, Cloud Support, DevOps, software engineering, and technical mentoring or knowledge-sharing roles, while bringing a practical understanding of business operations and team collaboration.',
   ],
 
   contact: {
@@ -74,9 +74,9 @@ export const profile = {
 
   seo: {
     siteName: 'Shivam Patel',
-    title: 'Shivam Patel | Supply Chain, Operations & Technology',
+    title: 'Shivam Patel | Cloud Engineering, DevOps & Software Engineering',
     description:
-      "Explore Shivam Patel's background in warehouse operations, inventory control, supply chain processes, computer science, team support, and operational improvement.",
+      "Explore Shivam Patel's AWS cloud engineering, DevOps, software development, technical leadership, mentoring, education, certifications, and professional experience.",
     /** Public origin, e.g. https://example.com. Empty = no canonical URLs are emitted. */
     siteUrl: ((env.VITE_SITE_URL as string | undefined) ?? '').trim().replace(/\/+$/, ''),
     /** Optional absolute 1200x630 PNG/JPG for link previews (VITE_OG_IMAGE_URL). */

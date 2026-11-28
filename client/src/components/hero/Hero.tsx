@@ -12,17 +12,17 @@ import { useIntro } from '../intro/IntroContext';
 import { NetworkBackground } from './NetworkBackground';
 
 const headline: MaskToken[] = [
-  { text: 'Bridging' },
-  { text: 'Supply Chain', className: 'gradient-text', nowrap: true },
+  { text: 'Building with' },
+  { text: 'AWS Cloud', className: 'gradient-text', nowrap: true },
   'br',
-  { text: 'Operations &', nowrap: true },
-  { text: 'Technology.', className: 'gradient-text gradient-text--alt' },
+  { text: 'Software &', nowrap: true },
+  { text: 'People.', className: 'gradient-text gradient-text--alt' },
 ];
 
 const chips = [
-  { Icon: Truck, cls: 'a', label: 'Logistics' },
-  { Icon: Database, cls: 'b', label: 'Systems' },
-  { Icon: Gauge, cls: 'c', label: 'Performance' },
+  { Icon: Truck, cls: 'a', label: 'AWS' },
+  { Icon: Database, cls: 'b', label: 'DevOps' },
+  { Icon: Gauge, cls: 'c', label: 'Infrastructure' },
 ] as const;
 
 export function Hero() {
@@ -84,17 +84,17 @@ export function Hero() {
                 <i />
                 <i />
               </span>
-              <span className="control__title">Operational flow</span>
+              <span className="control__title">Cloud deployment flow</span>
               <span className="control__badge">Illustrative</span>
             </div>
             <FlowDiagram
               mode="tooltip"
               nodes={heroFlow}
               describe={(n) => n.role}
-              ariaLabel="Interactive operational workflow: warehouse, inventory, order processing, data systems, analytics, process optimization"
+              ariaLabel="Illustrative cloud deployment workflow"
             />
             <p className="control__caption">
-              Hover, focus or tap a node. A conceptual workflow, not live data.
+              Hover, focus or tap a node. A conceptual deployment workflow, not live infrastructure telemetry.
             </p>
           </div>
           {chips.map(({ Icon, cls, label }, i) => (

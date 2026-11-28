@@ -80,11 +80,11 @@ describe('resume fidelity', () => {
   it('preserves the professional summary', () => {
     const full = profile.summaryFull.join(' ');
     for (const phrase of [
-      'over four years',
-      'DC30 processes',
-      'Replenishment, Shorts resolution, and Selection',
-      'train and support new associates',
-      'KPI performance',
+      'Computer Science graduate',
+      'AWS-hosted full-stack application',
+      'full-stack development, REST APIs, databases',
+      'Bell Canada',
+      'Matrix Logistics Services (DHL Supply Chain)',
     ]) {
       expect(full).toContain(phrase);
     }
