@@ -504,6 +504,10 @@
 .span-chart__bar--2 {
   background: linear-gradient(90deg, var(--success), #6ee7b7);
 }
+.span-chart__bar--3,
+.span-chart__bar--4 {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
 @media (min-width: 760px) {
   .span-chart__row {
     grid-template-columns: 15rem minmax(0, 1fr);
