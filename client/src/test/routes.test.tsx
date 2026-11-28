@@ -11,7 +11,7 @@ const h1 = () => screen.findByRole('heading', { level: 1 });
 
 describe('routes', () => {
   it.each([
-    ['/', /Bridging Supply Chain Operations & Technology\./],
+    ['/', /Building with AWS Cloud Software & People\./],
     ['/about', /^About$/],
     ['/experience', /^Experience$/],
     ['/projects', /^Projects$/],

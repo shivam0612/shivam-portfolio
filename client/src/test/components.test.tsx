@@ -150,9 +150,9 @@ describe('Hero', () => {
 
   it('shows the required headline, label and calls to action', () => {
     wrap(<Hero />);
-    expect(screen.getByText('SUPPLY CHAIN × TECHNOLOGY')).toBeInTheDocument();
+    expect(screen.getByText(/CLOUD ENGINEERING/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Bridging Supply Chain Operations & Technology.',
+      'Building with AWS Cloud Software & People.',
     );
     expect(screen.getByRole('link', { name: /Explore/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Get in Touch/ })).toBeInTheDocument();
@@ -230,7 +230,7 @@ describe('SEO', () => {
     );
     expect(document.head.querySelector('link[rel="canonical"]')).toBeNull();
     applySeo({ path: '/' });
-    expect(document.title).toBe('Shivam Patel | Supply Chain, Operations & Technology');
+    expect(document.title).toBe('Shivam Patel | Cloud Engineering, DevOps & Software Engineering');
   });
 
   it('marks unknown pages noindex and updates the title on route change', async () => {

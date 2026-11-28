@@ -6,56 +6,54 @@ import { SectionHeading } from '../components/common/SectionHeading';
 import { profile } from '../data/profile';
 import { useSeo } from '../lib/seo';
 
-const operations = [
+const technicalFocus = [
   [
-    'Warehouse fulfillment',
-    'Accurate, efficient fulfillment of customer orders while maintaining quality and safety standards.',
+    'AWS cloud infrastructure',
+    'AWS Lightsail, Amazon ECR, Ubuntu, Cloudflare DNS, HTTPS, and Caddy reverse proxy configuration.',
   ],
-  ['Replenishment', 'Applying DC30 process knowledge to keep pick locations supplied.'],
-  ['Shorts resolution', 'Managing shorts and inventory control processes using DALLAS software.'],
-  ['Selection processes', 'Identifying and correcting mispicks and selection errors.'],
   [
-    'Inventory control',
-    'Keeping records and physical stock aligned, with a reported 99% accuracy in inventory management and order processing at Nestlé / Kellogg.',
+    'DevOps & deployment',
+    'Docker, Docker Compose, PowerShell automation, AWS CLI, SSH, deployment health checks, and rollback handling.',
   ],
-  ['Order accuracy', 'Quality checks as part of everyday fulfillment work.'],
   [
-    'Material handling equipment',
-    'Operating pallet jacks, cherry pickers, and Reach Trucks safely and efficiently.',
+    'Software development',
+    'JavaScript, TypeScript, Python, React, Node.js, REST APIs, and full-stack application development.',
   ],
-  ['Safety compliance', 'Promoting safety protocols and working within safety standards.'],
-  ['Training new associates', 'Supporting onboarding and helping associates build productivity.'],
   [
-    'Operational documentation',
-    'Maintaining documentation for audits, compliance, and inventory tracking.',
+    'Databases & systems',
+    'PostgreSQL, Prisma, MongoDB, MongoDB Atlas, Linux, DNS, and networking fundamentals.',
+  ],
+  [
+    'AI & machine learning',
+    'ANN, CNN, transfer learning, computer vision, and data visualization from internship project work.',
   ],
 ] as const;
 
-const tools = ['DALLAS', 'Microsoft Office', 'Microsoft Project', 'Salesforce', 'Google Docs'];
-
-const leadership = [
-  [
-    'Communication',
-    'Helping customers choose suitable products at Bell Canada and guiding associates on the warehouse floor.',
-  ],
-  ['Training and support', 'Supporting the onboarding and training of new associates.'],
-  [
-    'Teamwork',
-    'Guiding a team of approximately four to five associates on customer engagement and sales strategies.',
-  ],
-  [
-    'Operational discipline',
-    'Recognized in performance reviews for attendance, productivity, and operational knowledge.',
-  ],
-  [
-    'Problem-solving',
-    'Finding and correcting mispicks, resolving shorts, and adapting across warehouse functions.',
-  ],
-  ['Safety awareness', 'Promoting safety protocols and safe equipment operation.'],
-  [
-    'Continuous improvement',
-    'Contributing to process efficiency, and interested in KPI performance and continuous improvement.',
-  ],
+const professionalExperience = [
+  {
+    role: 'Software Engineering Team Lead',
+    company: 'Lambton College',
+    detail:
+      'Led five developers, architected and deployed a MERN application, conducted 45+ code reviews, integrated third-party APIs, and achieved 85% unit test coverage.',
+  },
+  {
+    role: 'Team Member',
+    company: 'Matrix Logistics Services (DHL Supply Chain)',
+    detail:
+      'Managed inventory, investigated shortages, corrected mispicks using DALLAS warehouse software, monitored accuracy and productivity KPIs, and supported onboarding and audit documentation.',
+  },
+  {
+    role: 'Team Leader / Sales Supervisor',
+    company: 'Bell Canada',
+    detail:
+      'Led 5–6 sales associates, coached team performance, onboarded new staff, prepared monthly sales reports, used Salesforce, and achieved an 80% sales increase within four weeks through upselling and cross-selling.',
+  },
+  {
+    role: 'Web Development & Artificial Intelligence Intern',
+    company: 'Verzeo',
+    detail:
+      'Delivered client-facing web projects, developed React/Node applications and data visualizations, and completed AI/ML projects including face-mask detection and image captioning.',
+  },
 ] as const;
 
 export default function About() {
@@ -63,106 +61,100 @@ export default function About() {
     title: 'About',
     path: '/about',
     description:
-      'How a computer science education and hands-on warehouse operations experience come together in Shivam Patel’s professional background.',
+      'Shivam Patel is a Computer Science graduate and AWS-certified cloud practitioner with hands-on cloud deployment, DevOps, full-stack development, and team leadership experience.',
   });
+
   return (
     <>
       <PageHero title="About">
         <p>
-          My background combines computer science education with hands-on experience in warehouse
-          operations, inventory management, customer service, and team support.
+          I am a Computer Science graduate working across AWS Cloud, DevOps, and software
+          engineering. Alongside hands-on cloud deployment and application development, I bring team
+          leadership, coaching, and a genuine interest in mentoring others and sharing technical
+          knowledge.
         </p>
       </PageHero>
 
       <section className="section section--tight">
         <div className="container prose prose--wide">
-          {profile.summaryFull.map((p) => (
-            <Reveal key={p}>
-              <p>{p}</p>
+          {profile.summaryFull.map((paragraph) => (
+            <Reveal key={paragraph}>
+              <p>{paragraph}</p>
             </Reveal>
           ))}
         </div>
       </section>
 
-      <section className="section" aria-labelledby="ops-title">
+      <section className="section" aria-labelledby="focus-title">
         <div className="container">
-          <SectionHeading id="ops-title" title="Operations experience">
-            <p>The day-to-day work behind the summary, as described on my resume.</p>
+          <SectionHeading id="focus-title" title="Technical focus">
+            <p>
+              Practical technologies used in my cloud deployment and software projects, alongside
+              skills developed through my Computer Science education and internships.
+            </p>
           </SectionHeading>
           <Stagger className="fact-grid">
-            {operations.map(([t, d]) => (
-              <StaggerItem key={t}>
+            {technicalFocus.map(([title, detail]) => (
+              <StaggerItem key={title}>
                 <div className="fact">
-                  <h3>{t}</h3>
-                  <p>{d}</p>
+                  <h3>{title}</h3>
+                  <p>{detail}</p>
                 </div>
               </StaggerItem>
             ))}
           </Stagger>
+          <div className="prose__cta">
+            <Button to="/skills">Explore technical skills</Button>
+            <Button to="/projects" variant="ghost">
+              View cloud project
+            </Button>
+          </div>
         </div>
       </section>
 
-      <section className="section" aria-labelledby="tech-title">
-        <div className="container split">
-          <SectionHeading id="tech-title" title="Technology background">
+      <section className="section" aria-labelledby="experience-title">
+        <div className="container">
+          <SectionHeading id="experience-title" title="Professional experience">
             <p>
-              I hold a postgraduate degree in computer science (2023), a bachelor’s degree in
-              computer science and engineering (2017), and a diploma in computer science and
-              engineering (2014).
+              My experience extends beyond warehouse operations. It includes software engineering,
+              cloud-focused project work, customer-facing technology sales, and team leadership.
             </p>
           </SectionHeading>
-          <Reveal className="prose">
-            <p>The business software listed on my resume:</p>
-            <ul className="tags tags--lg" aria-label="Business software">
-              {tools.map((t) => (
-                <li key={t} className="tag tag--tech">
-                  {t}
-                </li>
-              ))}
-            </ul>
-            <p className="callout">
-              These are tools I have used in my roles. I am not claiming software development
-              experience with these systems; the technical depth on this site comes from my
-              education and from how operational information is used day to day.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="section" aria-labelledby="lead-title">
-        <div className="container">
-          <SectionHeading id="lead-title" title="Leadership approach" />
           <Stagger className="fact-grid">
-            {leadership.map(([t, d]) => (
-              <StaggerItem key={t}>
+            {professionalExperience.map((item) => (
+              <StaggerItem key={item.company}>
                 <div className="fact">
-                  <h3>{t}</h3>
-                  <p>{d}</p>
+                  <p className="eyebrow">{item.company}</p>
+                  <h3>{item.role}</h3>
+                  <p>{item.detail}</p>
                 </div>
               </StaggerItem>
             ))}
           </Stagger>
+          <div className="prose__cta">
+            <Button to="/experience">View full experience</Button>
+          </div>
         </div>
       </section>
 
-      <section className="section" aria-labelledby="dir-title">
+      <section className="section" aria-labelledby="direction-title">
         <div className="container split">
-          <SectionHeading id="dir-title" title="Professional direction" />
+          <SectionHeading id="direction-title" title="Career direction" />
           <Reveal className="prose">
             <p>
-              I am interested in contributing to safe, efficient warehouse operations, team
-              development, KPI performance, and continuous improvement, and in combining operational
-              leadership with supply chain knowledge, business systems, and technology-enabled
-              improvement.
+              I am pursuing opportunities across AWS Cloud Engineering, Cloud Support, DevOps, and
+              software engineering, including full-stack and backend development roles. My hands-on
+              foundation includes deploying a containerized full-stack application, publishing
+              images to Amazon ECR, managing an AWS Lightsail environment, configuring HTTPS and
+              DNS, and automating deployments.
             </p>
             <p>
-              I am early in applying technology to operations. The project concepts on this site are
-              a way of exploring how information could be presented and managed; they are labelled
-              honestly as concepts, not as delivered work.
+              I also welcome opportunities to mentor, coach, onboard, and share knowledge with
+              teammates. My software engineering team-lead experience at Lambton College, together
+              with training and coaching at Bell Canada and Matrix Logistics Services, supports this
+              people-focused side of my professional profile. I value helping others build
+              confidence and grow.
             </p>
-            <div className="prose__cta">
-              <Button to="/projects">See the project concepts</Button>
-            </div>
           </Reveal>
         </div>
       </section>
