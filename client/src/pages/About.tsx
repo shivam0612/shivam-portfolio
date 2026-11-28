@@ -76,12 +76,21 @@ export default function About() {
       </PageHero>
 
       <section className="section section--tight">
-        <div className="container prose prose--wide">
-          {profile.summaryFull.map((paragraph) => (
-            <Reveal key={paragraph}>
-              <p>{paragraph}</p>
-            </Reveal>
-          ))}
+        <div className="container about-intro">
+          <img
+            className="about-intro__photo"
+            src="/images/shivam-patel.jpg"
+            alt="Shivam Patel"
+            width={720}
+            height={1165}
+          />
+          <div className="prose prose--wide">
+            {profile.summaryFull.map((paragraph) => (
+              <Reveal key={paragraph}>
+                <p>{paragraph}</p>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 

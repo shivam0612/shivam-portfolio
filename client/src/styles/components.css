@@ -670,3 +670,22 @@
     gap: 2rem;
   }
 }
+
+.about-intro {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+.about-intro__photo {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  margin-inline: auto;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+@media (min-width: 900px) {
+  .about-intro {
+    grid-template-columns: 340px minmax(0, 1fr);
+    align-items: start;
+  }
+}
