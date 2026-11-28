@@ -82,7 +82,7 @@ describe('navigation', () => {
   it('all internal links on the home page resolve to a known route or an existing section', async () => {
     renderApp('/');
     await h1();
-    await screen.findByRole('heading', { name: /Featured project concepts/ });
+    await screen.findByRole('heading', { name: /Featured projects/ });
     const known = [
       /^\/$/,
       /^\/about$/,

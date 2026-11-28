@@ -10,7 +10,7 @@ export function ProjectIllustration({ kind }: { kind: IllustrationKind }) {
       className="illo"
       viewBox="0 0 400 240"
       role="img"
-      aria-label={`Abstract illustration for the ${kind} concept`}
+      aria-label={`Abstract ${kind} illustration`}
       focusable="false"
     >
       <defs>

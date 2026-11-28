@@ -8,7 +8,7 @@ import { useSeo } from '../lib/seo';
 const legend = [
   ['Concept', 'An idea with a plan. Nothing has been built or verified yet.'],
   ['In Progress', 'Being built. Partial, clearly described implementation exists.'],
-  ['Completed', 'Built and verified, with real screenshots.'],
+  ['Completed', 'Built and working.'],
 ] as const;
 
 export default function Projects() {
@@ -16,15 +16,14 @@ export default function Projects() {
     title: 'Projects',
     path: '/projects',
     description:
-      'Project concepts exploring how supply chain and warehouse information could be presented and managed with technology.',
+      'An AWS-hosted portfolio with deployment automation, plus project concepts in supply chain and operations technology.',
   });
   return (
     <>
       <PageHero title="Projects">
         <p>
-          Concepts that explore how operational information could be presented and managed. They are
-          labelled with their real status, and none of them is presented as completed professional
-          work.
+          A completed AWS deployment project, and concepts that explore how operational information
+          could be presented and managed. Each one is labelled with its real status.
         </p>
       </PageHero>
       <section className="section section--tight">

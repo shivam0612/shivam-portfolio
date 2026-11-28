@@ -8,10 +8,10 @@ export function FeaturedProjects() {
   return (
     <section id="projects" className="section" aria-labelledby="projects-title">
       <div className="container">
-        <SectionHeading id="projects-title" title="Featured project concepts">
+        <SectionHeading id="projects-title" title="Featured projects">
           <p>
-            Ideas for how operational information could be presented and managed. Each one is
-            labelled with its honest status; none is presented as completed professional work.
+            A completed AWS deployment project and ideas for how operational information could be
+            presented and managed. Each one is labelled with its real status.
           </p>
         </SectionHeading>
         <Stagger className="project-grid">
