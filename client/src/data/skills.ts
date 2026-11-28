@@ -122,6 +122,22 @@ export const skillCategories: SkillCategory[] = [
         name: 'Git & GitHub',
         evidence: 'Used for version control, collaboration, and code reviews.',
       },
+      {
+        name: 'Next.js',
+        evidence: 'Built Portfolio 1.0 with Next.js 14 and React 18.',
+      },
+      {
+        name: 'Tailwind CSS',
+        evidence: 'Used for styling and responsive layout in Portfolio 1.0.',
+      },
+      {
+        name: 'Framer Motion',
+        evidence: 'Used for interface animation in Portfolio 1.0 and in this portfolio.',
+      },
+      {
+        name: 'EmailJS',
+        evidence: 'Used to send messages from the Portfolio 1.0 contact form.',
+      },
     ],
   },
   {

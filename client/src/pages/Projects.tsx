@@ -16,14 +16,15 @@ export default function Projects() {
     title: 'Projects',
     path: '/projects',
     description:
-      'An AWS-hosted portfolio with deployment automation, plus project concepts in supply chain and operations technology.',
+      'An AWS-hosted portfolio with deployment automation, a Next.js portfolio (Portfolio 1.0), plus project concepts in supply chain and operations technology.',
   });
   return (
     <>
       <PageHero title="Projects">
         <p>
-          A completed AWS deployment project, and concepts that explore how operational information
-          could be presented and managed. Each one is labelled with its real status.
+          Two completed projects, an AWS deployment and my first Next.js portfolio, plus concepts
+          that explore how operational information could be presented and managed. Each one is
+          labelled with its real status.
         </p>
       </PageHero>
       <section className="section section--tight">
