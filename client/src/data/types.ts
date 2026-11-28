@@ -71,6 +71,8 @@ export interface Project {
   architecture: { summary: string; layers: { name: string; detail: string }[] };
   implementationStatus: string;
   screenshots: { src: string; alt: string }[];
+  /** Optional hero image shown on the project card and detail page instead of the illustration. */
+  coverImage?: { src: string; alt: string };
   limitations: string[];
   futureImprovements: string[];
   repoUrl: string | null;

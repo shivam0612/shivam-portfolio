@@ -1,6 +1,8 @@
 import { ArrowLeft } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { Reveal } from '../components/animations/Reveal';
+import { Button } from '../components/common/Button';
+import { GithubIcon } from '../components/common/Icons';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { ProjectIllustration } from '../components/projects/ProjectIllustration';
 import { getProject } from '../data/projects';
@@ -51,7 +53,18 @@ export default function ProjectDetail() {
       </header>
 
       <div className="detail__art panel">
-        <ProjectIllustration kind={project.illustration} />
+        {project.coverImage ? (
+          <img
+            className="detail__shot"
+            src={project.coverImage.src}
+            alt={project.coverImage.alt}
+            width={1919}
+            height={1079}
+            decoding="async"
+          />
+        ) : (
+          <ProjectIllustration kind={project.illustration} />
+        )}
       </div>
 
       <div className="detail__grid">
@@ -135,28 +148,21 @@ export default function ProjectDetail() {
       </div>
 
       {(project.repoUrl || project.liveUrl) && (
-        <p className="detail__links">
-          {project.repoUrl && (
-            <a
-              className="text-link"
-              href={project.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub repository
-            </a>
-          )}
+        <div className="detail__links">
           {project.liveUrl && (
-            <a
-              className="text-link"
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Live demo
-            </a>
+            <Button href={project.liveUrl} external icon="external" variant="primary">
+              Live Demo
+            </Button>
           )}
-        </p>
+          {project.repoUrl && (
+            <Button href={project.repoUrl} external icon="none" variant="ghost">
+              <span className="detail__gh">
+                <GithubIcon size={18} />
+                GitHub
+              </span>
+            </Button>
+          )}
+        </div>
       )}
     </article>
   );
