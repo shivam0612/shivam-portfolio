@@ -94,7 +94,8 @@ export function Hero() {
               ariaLabel="Illustrative cloud deployment workflow"
             />
             <p className="control__caption">
-              Hover, focus or tap a node. A conceptual deployment workflow, not live infrastructure telemetry.
+              Hover, focus or tap a node. A conceptual deployment workflow, not live infrastructure
+              telemetry.
             </p>
           </div>
           {chips.map(({ Icon, cls, label }, i) => (
