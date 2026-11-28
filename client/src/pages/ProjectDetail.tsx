@@ -55,7 +55,7 @@ export default function ProjectDetail() {
       </div>
 
       <div className="detail__grid">
-        <Block title="The problem being explored">
+        <Block title={isConcept ? 'The problem being explored' : 'The problem'}>
           <p>{project.problem}</p>
         </Block>
         <Block title="Intended users">
@@ -65,14 +65,14 @@ export default function ProjectDetail() {
             ))}
           </ul>
         </Block>
-        <Block title="Proposed workflow">
+        <Block title={isConcept ? 'Proposed workflow' : 'Workflow'}>
           <ol className="steps">
             {project.workflow.map((w) => (
               <li key={w}>{w}</li>
             ))}
           </ol>
         </Block>
-        <Block title="Potential features">
+        <Block title={isConcept ? 'Potential features' : 'Features'}>
           <ul className="bullets">
             {project.features.map((f) => (
               <li key={f}>{f}</li>
@@ -102,20 +102,22 @@ export default function ProjectDetail() {
         <Block title="Implementation status">
           <p>{project.implementationStatus}</p>
         </Block>
-        <Block title="Screenshots">
-          {project.screenshots.length === 0 ? (
-            <p className="empty">
-              No screenshots yet. They will be added only when a working implementation exists. The
-              illustration above is abstract and does not show a real system.
-            </p>
-          ) : (
-            <div className="shots">
-              {project.screenshots.map((s) => (
-                <img key={s.src} src={s.src} alt={s.alt} loading="lazy" decoding="async" />
-              ))}
-            </div>
-          )}
-        </Block>
+        {(isConcept || project.screenshots.length > 0) && (
+          <Block title="Screenshots">
+            {project.screenshots.length === 0 ? (
+              <p className="empty">
+                No screenshots yet. They will be added only when a working implementation exists.
+                The illustration above is abstract and does not show a real system.
+              </p>
+            ) : (
+              <div className="shots">
+                {project.screenshots.map((s) => (
+                  <img key={s.src} src={s.src} alt={s.alt} loading="lazy" decoding="async" />
+                ))}
+              </div>
+            )}
+          </Block>
+        )}
         <Block title="Known limitations">
           <ul className="bullets">
             {project.limitations.map((l) => (

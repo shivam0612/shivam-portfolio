@@ -1,11 +1,97 @@
 import type { Project } from './types';
 
 /**
- * Project catalogue. IMPORTANT: every entry below is a CONCEPT until it is actually built and
- * verified. Change `status` (and add `screenshots`, `repoUrl`, `liveUrl`) only when that is true.
- * No outcomes, metrics, users or deployments are claimed.
+ * Project catalogue. The AWS-hosted portfolio deployment is a completed project described in
+ * the supplied resume. The remaining entries are concepts and are labelled as such.
  */
 export const projects: Project[] = [
+  {
+    slug: 'aws-hosted-portfolio-deployment',
+    title: 'AWS-Hosted Portfolio & Deployment Automation',
+    category: 'AWS Cloud / DevOps / Full-Stack',
+    status: 'Completed',
+    illustration: 'lab',
+    summary:
+      'A full-stack portfolio application deployed on AWS Lightsail, using Docker-based services, Amazon ECR, HTTPS, DNS configuration, and an automated deployment workflow.',
+    features: [
+      'AWS Lightsail Ubuntu 24.04 hosting',
+      'Docker and Docker Compose containerization',
+      'Amazon ECR image registry',
+      'Caddy reverse proxy and Let’s Encrypt HTTPS',
+      'Cloudflare DNS configuration',
+      'PowerShell deployment automation',
+      'SSH-based remote deployment',
+      'Deployment health checks and rollback handling',
+    ],
+    stack: [
+      'AWS Lightsail',
+      'Amazon ECR',
+      'Docker',
+      'Docker Compose',
+      'Linux',
+      'PostgreSQL',
+      'Caddy',
+      'Cloudflare DNS',
+      'PowerShell',
+      'SSH',
+      'React',
+      'TypeScript',
+      'Node.js',
+    ],
+    problem:
+      'The application needed a repeatable way to build, package, publish, and deploy a full-stack website while protecting the currently running production version.',
+    users: ['Portfolio visitors', 'Recruiters and hiring teams'],
+    workflow: [
+      'Run automated application tests and TypeScript checks.',
+      'Create a production build and Docker image.',
+      'Publish the image to Amazon ECR.',
+      'Connect to AWS Lightsail through SSH and deploy the updated services.',
+      'Run deployment health checks and use rollback handling if the release is unhealthy.',
+    ],
+    architecture: {
+      summary:
+        'A containerized full-stack application hosted on an Ubuntu AWS Lightsail instance, with Amazon ECR used as the image registry and Caddy providing reverse-proxy and HTTPS configuration.',
+      layers: [
+        {
+          name: 'Application',
+          detail: 'React and TypeScript frontend with a Node.js backend and PostgreSQL database.',
+        },
+        {
+          name: 'Containers & Registry',
+          detail:
+            'Docker and Docker Compose manage services; Amazon ECR stores application images.',
+        },
+        {
+          name: 'Cloud Hosting',
+          detail: 'AWS Lightsail Ubuntu 24.04 instance hosts the deployed application.',
+        },
+        {
+          name: 'Networking & Security',
+          detail:
+            'Cloudflare DNS, Caddy reverse proxy, HTTPS certificates from Let’s Encrypt, and SSH remote access.',
+        },
+        {
+          name: 'Release Automation',
+          detail:
+            'PowerShell workflow automates checks, builds, image publishing, remote deployment, health checks, and rollback handling.',
+        },
+      ],
+    },
+    implementationStatus:
+      'Completed personal project. The portfolio is deployed at the live website. The described infrastructure and deployment workflow are based on the project details supplied in the resume.',
+    screenshots: [],
+    limitations: [
+      'This is a personal portfolio deployment, not a multi-account enterprise cloud architecture.',
+      'No claim is made of production experience with Kubernetes, Terraform, or AWS services not listed here.',
+    ],
+    futureImprovements: [
+      'Add infrastructure-as-code when implemented.',
+      'Expand automated monitoring and alerting.',
+      'Document a repeatable disaster-recovery procedure.',
+    ],
+    repoUrl: null,
+    liveUrl: 'https://shivampatel.site',
+  },
   {
     slug: 'supply-chain-operations-dashboard',
     title: 'Supply Chain Operations Dashboard',

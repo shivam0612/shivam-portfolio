@@ -123,20 +123,27 @@ describe('no fabricated metrics', () => {
 });
 
 describe('project integrity', () => {
-  it('every project is an honest concept with no invented links, outcomes or screenshots', () => {
-    expect(projects).toHaveLength(4);
-    for (const p of projects) {
-      expect(p.status).toBe('Concept');
+  const concepts = projects.filter((p) => p.status === 'Concept');
+
+  it('every concept is an honest concept with no invented links, outcomes or screenshots', () => {
+    expect(concepts).toHaveLength(4);
+    for (const p of concepts) {
       expect(p.repoUrl).toBeNull();
       expect(p.liveUrl).toBeNull();
       expect(p.screenshots).toEqual([]);
       expect(p.implementationStatus).toMatch(/^Concept/);
     }
-    expect(new Set(projects.map((p) => p.slug)).size).toBe(4);
+    expect(new Set(projects.map((p) => p.slug)).size).toBe(5);
   });
 
-  it('project copy does not claim results', () => {
-    const text = JSON.stringify(projects).toLowerCase();
+  it('lists the AWS deployment as the only completed project, linked to the live site', () => {
+    const completed = projects.filter((p) => p.status === 'Completed');
+    expect(completed.map((p) => p.slug)).toEqual(['aws-hosted-portfolio-deployment']);
+    expect(completed[0]!.liveUrl).toBe('https://shivampatel.site');
+  });
+
+  it('concept copy does not claim results', () => {
+    const text = JSON.stringify(concepts).toLowerCase();
     const claims = [
       /\breduced\b/,
       /\bincreased\b/,
