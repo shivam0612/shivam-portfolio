@@ -421,8 +421,35 @@ function Prepare-PR {
         "--json", "url,state,mergeStateStatus"
     ) "PULL REQUEST STATUS"
 
+    # Merge automatically, but only the exact commit that was checked.
+    $headCommit = (& git rev-parse HEAD).Trim()
+
+    if ($LASTEXITCODE -ne 0 -or !$headCommit) {
+        Stop-Now "Could not determine the commit to merge."
+    }
+
+    Run-Checked "gh" @(
+        "pr", "merge", $prNumber,
+        "--repo", $GitHubRepo,
+        "--merge",
+        "--match-head-commit", $headCommit
+    ) "MERGE PULL REQUEST"
+
+    $prState = (& gh pr view $prNumber `
+        --repo $GitHubRepo `
+        --json state `
+        --jq ".state").Trim()
+
+    if ($LASTEXITCODE -ne 0 -or $prState -ne "MERGED") {
+        Stop-Now "Pull request is not merged yet. Check it on GitHub."
+    }
+
+    # Return to an up-to-date main, ready for option 2.
+    Run-Checked "git" @("switch", "main") "SWITCH TO MAIN"
+    Run-Checked "git" @("pull", "--ff-only", "origin", "main") "UPDATE MAIN"
+
     Write-Host "`nOPTION 1 COMPLETED." -ForegroundColor Green
-    Write-Host "Review and merge the PR yourself on GitHub."
+    Write-Host "PR $prNumber is merged and you are on main. Run option 2 to deploy."
 }
 
 # =================================================
@@ -433,17 +460,16 @@ function Deploy-Main {
 
     Write-Host "`nOPTION 2: DEPLOY APPROVED MAIN TO AWS" -ForegroundColor Green
 
-    $branch = (& git branch --show-current).Trim()
-
-    if ($branch -ne "main") {
-        Stop-Now "Option 2 requires main."
-    }
-
-
     $trackedChanges = & git status --porcelain --untracked-files=no
 
     if ($trackedChanges) {
         Stop-Now "Tracked local changes exist. Commit or resolve them first."
+    }
+
+    $branch = "$(& git branch --show-current)".Trim()
+
+    if ($branch -ne "main") {
+        Run-Checked "git" @("switch", "main") "SWITCH TO MAIN"
     }
 
     Run-Checked "git" @("fetch", "origin") "FETCH MAIN"

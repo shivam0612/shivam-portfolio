@@ -26,7 +26,7 @@ export default function Home() {
               or percentages.
             </p>
           </SectionHeading>
-          <SkillExplorer initial="warehouse" />
+          <SkillExplorer initial="cloud" />
           <div className="section__more">
             <Button to="/skills" variant="ghost">
               See every competency

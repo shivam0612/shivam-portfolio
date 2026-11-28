@@ -7,13 +7,13 @@ export default function Skills() {
     title: 'Skills',
     path: '/skills',
     description:
-      'Core competencies across warehouse operations, equipment and safety, leadership, technology and business systems, and process improvement.',
+      'AWS cloud infrastructure, DevOps and deployment, full-stack software development, databases, AI/ML, and complementary professional experience.',
   });
   return (
     <>
       <PageHero title="Skills">
         <p>
-          Five areas of competency. There are no ratings or percentages here: every card says what
+          Seven areas of competency. There are no ratings or percentages here: every card says what
           my resume states that supports it, and the technology list reflects tools I have used and
           my computer science education.
         </p>

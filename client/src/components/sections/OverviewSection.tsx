@@ -49,7 +49,7 @@ const metrics = [
     value: skillCategories.length,
     suffix: '',
     label: 'Core competency categories',
-    note: 'Operations, safety, leadership, systems, improvement',
+    note: 'Cloud, DevOps, development, data, AI, leadership, operations',
   },
 ] as const;
 

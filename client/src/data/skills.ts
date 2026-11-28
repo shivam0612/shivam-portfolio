@@ -1,186 +1,247 @@
 import type { SkillCategory } from './types';
 
 /**
- * Competencies grouped by category. There are deliberately no percentages or proficiency bars:
- * each skill carries the resume evidence that supports it instead.
+ * Skills are grouped by the direction of the portfolio. Evidence distinguishes hands-on
+ * project experience, education, certifications, and professional experience.
  */
 export const skillCategories: SkillCategory[] = [
   {
-    id: 'warehouse',
-    label: 'Warehouse Operations',
-    icon: 'warehouse',
-    description: 'Day-to-day fulfillment work across the DC30 process areas.',
+    id: 'cloud',
+    label: 'AWS Cloud & Infrastructure',
+    icon: 'cpu',
+    description:
+      'AWS services and infrastructure used in the deployed portfolio application, backed by AWS certifications.',
     skills: [
       {
-        name: 'DC30 Warehouse Operations',
-        evidence: 'Comprehensive working knowledge of DC30 processes (resume summary).',
-      },
-      {
-        name: 'Replenishment',
+        name: 'Amazon Web Services (AWS)',
         evidence:
-          'Applied across the Matrix Logistics Services (DHL Supply Chain) Team Member role.',
+          'AWS Certified Solutions Architect – Associate and AWS Certified Cloud Practitioner; hands-on AWS-hosted application deployment.',
       },
       {
-        name: 'Shorts Resolution',
-        evidence: 'Manages shorts and inventory control processes using DALLAS software.',
-      },
-      { name: 'Selection', evidence: 'Identifies and corrects mispicks and selection errors.' },
-      {
-        name: 'Order Fulfillment',
-        evidence: 'Ensures accurate and efficient fulfillment of customer orders.',
+        name: 'AWS Lightsail',
+        evidence: 'Deployed the full-stack portfolio application to an Ubuntu 24.04 instance.',
       },
       {
-        name: 'Inventory Control',
-        evidence: 'Manages inventory control processes and tracking documentation.',
+        name: 'Amazon ECR',
+        evidence: 'Configured as the Docker image registry for application deployments.',
       },
       {
-        name: 'Warehouse Documentation',
-        evidence: 'Maintains documentation for audits, compliance, and inventory tracking.',
+        name: 'Cloud Infrastructure',
+        evidence: 'Configured and maintained the application hosting environment on AWS Lightsail.',
+      },
+      {
+        name: 'Cloudflare DNS',
+        evidence:
+          'Configured DNS for domain management and secure access to the deployed application.',
+      },
+      { name: 'HTTPS & TLS', evidence: 'Configured Caddy with Let’s Encrypt HTTPS certificates.' },
+      { name: 'AWS CLI', evidence: 'Listed in the resume under deployment and automation tools.' },
+    ],
+  },
+  {
+    id: 'devops',
+    label: 'DevOps & Deployment',
+    icon: 'workflow',
+    description: 'Containerization, deployment automation, and production release practices.',
+    skills: [
+      {
+        name: 'Docker',
+        evidence: 'Containerized the full-stack application and its PostgreSQL database.',
+      },
+      {
+        name: 'Docker Compose',
+        evidence: 'Used to manage the application and database containers.',
+      },
+      {
+        name: 'CI/CD Concepts',
+        evidence:
+          'Applied automated testing, type checks, production builds, image publishing, and remote deployment in a custom workflow.',
+      },
+      {
+        name: 'Deployment Automation',
+        evidence: 'Created a PowerShell deployment workflow launched through a BAT file.',
+      },
+      {
+        name: 'PowerShell',
+        evidence:
+          'Automated application checks, builds, Docker image creation, ECR publishing, and SSH deployment.',
+      },
+      {
+        name: 'Linux & Ubuntu',
+        evidence:
+          'Deployed and maintained the application on an Ubuntu 24.04 AWS Lightsail instance.',
+      },
+      { name: 'SSH', evidence: 'Used SSH for remote deployment to AWS Lightsail.' },
+      {
+        name: 'Caddy Reverse Proxy',
+        evidence: 'Configured Caddy as the reverse proxy with HTTPS.',
+      },
+      {
+        name: 'Deployment Health Checks & Rollback',
+        evidence:
+          'Implemented deployment health checks and rollback handling to protect the production deployment.',
       },
     ],
   },
   {
-    id: 'equipment-safety',
-    label: 'Equipment and Safety',
-    icon: 'shield',
-    description: 'Safe operation of material handling equipment.',
+    id: 'development',
+    label: 'Software & Full-Stack Development',
+    icon: 'cpu',
+    description:
+      'Application development skills from education, internships, team projects, and the deployed portfolio.',
     skills: [
       {
-        name: 'Reach Truck Operation',
-        evidence: 'Operates Reach Trucks safely and efficiently (Matrix Logistics Services).',
+        name: 'JavaScript & TypeScript',
+        evidence: 'Used in full-stack development and the AWS-hosted portfolio application.',
       },
       {
-        name: 'Pallet Jack Operation',
-        evidence: 'Operates pallet jacks safely and efficiently (Matrix Logistics Services).',
+        name: 'ReactJS',
+        evidence: 'Developed dynamic web applications and client-facing projects.',
       },
+      { name: 'Node.js', evidence: 'Built full-stack applications and RESTful APIs.' },
       {
-        name: 'Cherry Picker Operation',
-        evidence: 'Operates cherry pickers safely and efficiently (Matrix Logistics Services).',
-      },
-      {
-        name: 'Material Handling Equipment',
-        evidence: 'Operates warehouse equipment as part of daily fulfillment work.',
-      },
-      {
-        name: 'Safety Compliance',
+        name: 'MERN Stack',
         evidence:
-          'Maintains quality and safety standards; promotes safety protocols with associates.',
+          'Architected and deployed a full-stack MERN application as Software Engineering Team Lead at Lambton College.',
       },
       {
-        name: 'Risk Awareness',
+        name: 'REST APIs',
         evidence:
-          'Safety-first equipment operation and a clean, organized work area (Nestlé / Kellogg).',
+          'Integrated 6–7 third-party APIs in the Lambton College project and developed RESTful applications at Verzeo.',
+      },
+      {
+        name: 'HTML & CSS',
+        evidence:
+          'Delivered responsive client-facing web projects during the Verzeo Web Development Internship.',
+      },
+      {
+        name: 'Python',
+        evidence: 'Used for AI/ML projects, including a face-mask detection system.',
+      },
+      {
+        name: 'Git & GitHub',
+        evidence: 'Used for version control, collaboration, and code reviews.',
+      },
+    ],
+  },
+  {
+    id: 'data',
+    label: 'Databases & Operating Systems',
+    icon: 'cpu',
+    description:
+      'Database technologies and operating-system fundamentals used across application projects.',
+    skills: [
+      {
+        name: 'PostgreSQL',
+        evidence: 'Used with Docker Compose for the AWS-hosted portfolio application.',
+      },
+      { name: 'Prisma', evidence: 'Used as the database ORM in the portfolio application.' },
+      {
+        name: 'MongoDB & MongoDB Atlas',
+        evidence:
+          'Used in full-stack web development and a data visualization dashboard at Verzeo.',
+      },
+      { name: 'Linux', evidence: 'Used on the Ubuntu 24.04 AWS Lightsail deployment environment.' },
+      {
+        name: 'DNS & Networking Fundamentals',
+        evidence:
+          'Configured Cloudflare DNS, HTTPS, Caddy reverse proxy, and remote SSH deployment.',
+      },
+    ],
+  },
+  {
+    id: 'ai-ml',
+    label: 'AI & Machine Learning',
+    icon: 'cpu',
+    description:
+      'Academic and internship project experience in machine learning and computer vision.',
+    skills: [
+      {
+        name: 'Artificial Neural Networks (ANN)',
+        evidence: 'Completed AI/ML projects during the Verzeo internship.',
+      },
+      {
+        name: 'Convolutional Neural Networks (CNN)',
+        evidence: 'Applied in computer-vision project work.',
+      },
+      { name: 'Transfer Learning', evidence: 'Used to build an image-captioning model.' },
+      {
+        name: 'Computer Vision',
+        evidence:
+          'Built a Python face-mask detection system with 90% accuracy and an emotion-recognition system.',
+      },
+      {
+        name: 'Data Visualization',
+        evidence:
+          'Built an interactive dashboard with MongoDB Atlas during the Verzeo Web Development Internship.',
       },
     ],
   },
   {
     id: 'leadership',
-    label: 'Leadership and Teamwork',
+    label: 'Leadership & Professional Experience',
     icon: 'users',
-    description: 'Supporting colleagues and communicating clearly.',
+    description:
+      'Team leadership, customer-facing communication, reporting, and operational knowledge.',
     skills: [
       {
-        name: 'Training New Associates',
-        evidence: 'Supports onboarding and training of new associates.',
+        name: 'Software Engineering Team Leadership',
+        evidence: 'Led a team of five developers at Lambton College.',
       },
       {
-        name: 'Team Support',
+        name: 'Code Reviews & Quality',
         evidence:
-          'Helps associates build productivity while promoting safety and operational excellence.',
+          'Conducted 45+ code reviews and achieved 85% unit test coverage in the Lambton College project.',
       },
       {
-        name: 'Team Coordination',
+        name: 'Sales Team Leadership',
         evidence:
-          'Guided and supported a team of approximately four to five associates (Bell Canada).',
-      },
-      {
-        name: 'Customer Communication',
-        evidence: 'Helped customers identify suitable products and services (Bell Canada).',
-      },
-      {
-        name: 'Cross-Functional Flexibility',
-        evidence: 'Works across multiple warehouse functions to support productivity.',
-      },
-      {
-        name: 'Multi-Skilling',
-        evidence: 'Adapts quickly across multiple warehouse functions (resume summary).',
-      },
-    ],
-  },
-  {
-    id: 'technology',
-    label: 'Technology and Business Systems',
-    icon: 'cpu',
-    description: 'Computer science education and the business software listed on the resume.',
-    skills: [
-      {
-        name: 'Computer Science',
-        evidence:
-          'Postgraduate Degree (2023), Bachelor (2017) and Diploma (2014) in Computer Science.',
-      },
-      {
-        name: 'Microsoft Office',
-        evidence: 'Used to maintain customer and sales records (Bell Canada).',
-      },
-      {
-        name: 'Microsoft Project',
-        evidence:
-          'Listed among the business software on the resume; no project detail was provided.',
+          'Led 5–6 sales associates at Bell Canada, tracking monthly targets and coaching team members.',
       },
       {
         name: 'Salesforce',
-        evidence: 'Used to maintain customer and sales records (Bell Canada).',
+        evidence: 'Maintained customer records and sales activities at Bell Canada.',
       },
       {
-        name: 'Google Docs',
-        evidence: 'Used to maintain customer and sales records (Bell Canada).',
-      },
-      {
-        name: 'DALLAS Warehouse Software',
-        evidence: 'Used to manage shorts and inventory control (Matrix Logistics Services).',
-      },
-      {
-        name: 'Digital Workflow Familiarity',
-        evidence: 'Adapts to systems and technologies through teamwork and technical aptitude.',
-      },
-      {
-        name: 'Technical Problem-Solving',
+        name: 'Reporting & Performance Analysis',
         evidence:
-          'Computer science education combined with day-to-day exception handling on the warehouse floor.',
+          'Prepared monthly sales reports and performance analysis for Bell Canada management.',
+      },
+      {
+        name: 'Training & Knowledge Sharing',
+        evidence:
+          'Onboarded and trained new associates at Matrix Logistics Services and Bell Canada.',
       },
     ],
   },
   {
-    id: 'improvement',
-    label: 'Process Improvement',
-    icon: 'workflow',
-    description: 'Accuracy, compliance, and steady operational improvement.',
+    id: 'warehouse',
+    label: 'Supply Chain & Operations',
+    icon: 'warehouse',
+    description:
+      'Additional industry experience that complements a technology and cloud engineering profile.',
     skills: [
       {
-        name: 'Operational Efficiency',
+        name: 'Inventory Control',
         evidence:
-          'Contributes to process efficiency; collaborated on warehouse productivity (Nestlé / Kellogg).',
+          'Managed inventory, investigated shortages, and corrected mispicks using DALLAS at Matrix Logistics Services.',
       },
       {
-        name: 'Inventory Accuracy',
+        name: 'Warehouse Management Systems',
+        evidence: 'Hands-on use of DALLAS warehouse software.',
+      },
+      {
+        name: 'KPI Tracking',
         evidence:
-          'Reported 99% accuracy in inventory management and order processing (Nestlé / Kellogg).',
+          'Monitored operational accuracy and productivity KPIs at Matrix Logistics Services.',
       },
       {
-        name: 'Problem-Solving',
-        evidence: 'Identifies and corrects mispicks and resolves shorts.',
+        name: 'Order Fulfillment',
+        evidence: 'Experience across warehouse operations and order processing.',
       },
       {
-        name: 'Workflow Coordination',
-        evidence: 'Works across multiple warehouse functions to support operational productivity.',
-      },
-      {
-        name: 'Process Compliance',
-        evidence: 'Maintains documentation for audits and compliance.',
-      },
-      {
-        name: 'Continuous Improvement',
-        evidence: 'Stated interest in continuous improvement and KPI performance (resume summary).',
+        name: 'Process Documentation',
+        evidence: 'Maintained documentation for audits, compliance, and inventory tracking.',
       },
     ],
   },

@@ -98,22 +98,23 @@ describe('no fabricated metrics', () => {
         expect(Object.keys(skill).sort()).toEqual(['evidence', 'name']);
       }
     }
-    expect(skillCategories).toHaveLength(5);
+    expect(skillCategories).toHaveLength(7);
   });
 
   it('contains exactly the competencies requested', () => {
     const names = skillCategories.flatMap((c) => c.skills.map((s) => s.name));
     for (const n of [
-      'DC30 Warehouse Operations',
-      'Cherry Picker Operation',
-      'Training New Associates',
-      'DALLAS Warehouse Software',
-      'Microsoft Project',
-      'Continuous Improvement',
+      'Amazon Web Services (AWS)',
+      'Docker Compose',
+      'MERN Stack',
+      'PostgreSQL',
+      'Computer Vision',
+      'Software Engineering Team Leadership',
+      'Inventory Control',
     ]) {
       expect(names).toContain(n);
     }
-    expect(names).toHaveLength(7 + 6 + 6 + 8 + 6);
+    expect(names).toHaveLength(7 + 9 + 8 + 5 + 5 + 6 + 5);
   });
 
   it('does not include removed Nestle or Kellogg employment', () => {

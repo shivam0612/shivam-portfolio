@@ -27,23 +27,23 @@ describe('SkillExplorer', () => {
   it('filters by category and announces the result', async () => {
     const user = userEvent.setup();
     wrap(<SkillExplorer initial="all" />);
-    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(5);
-    await user.click(screen.getByRole('button', { name: 'Equipment and Safety' }));
-    expect(await screen.findByText('Reach Truck Operation')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText('DC30 Warehouse Operations')).toBeNull());
-    expect(screen.getByRole('button', { name: 'Equipment and Safety' })).toHaveAttribute(
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(7);
+    await user.click(screen.getByRole('button', { name: 'DevOps & Deployment' }));
+    expect(await screen.findByText('Docker Compose')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('Amazon ECR')).toBeNull());
+    expect(screen.getByRole('button', { name: 'DevOps & Deployment' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Showing 6 skills in Equipment and Safety.',
+      'Showing 9 skills in DevOps & Deployment.',
     );
   });
 
   it('shows evidence and no proficiency bars or percentages', () => {
     wrap(<SkillExplorer initial="warehouse" />);
     expect(
-      screen.getByText(/Manages shorts and inventory control processes using DALLAS/),
+      screen.getByText(/investigated shortages, and corrected mispicks using DALLAS/),
     ).toBeInTheDocument();
     expect(screen.queryAllByRole('progressbar')).toHaveLength(0);
     expect(document.body.textContent).not.toMatch(/\d+\s?%/);
