@@ -140,11 +140,11 @@ describe('Hero', () => {
     const user = userEvent.setup();
     wrap(<Hero />);
     await user.tab(); // first focusable inside the hero is a CTA; focus the node directly instead
-    screen.getByRole('button', { name: 'Inventory' }).focus();
+    screen.getByRole('button', { name: 'Build & Test' }).focus();
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      'Keeps system records aligned with physical stock.',
+      'Run tests, TypeScript checks, and production builds.',
     );
-    screen.getByRole('button', { name: 'Inventory' }).blur();
+    screen.getByRole('button', { name: 'Build & Test' }).blur();
     await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
   });
 
@@ -281,8 +281,8 @@ describe('contact page', () => {
 
 describe('project detail', () => {
   it('labels a concept honestly, shows an empty screenshots state and no invented links', async () => {
-    renderApp('/projects/warehouse-inventory-management-system');
-    await screen.findByRole('heading', { level: 1, name: 'Warehouse Inventory Management System' });
+    renderApp('/projects/operations-workflow-visualizer');
+    await screen.findByRole('heading', { level: 1, name: 'Operations Workflow Visualizer' });
     expect(screen.getByRole('note')).toHaveTextContent(/This is a concept\. It has not been built/);
     expect(screen.getByText(/No screenshots yet/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Planned technologies' })).toBeInTheDocument();

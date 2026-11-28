@@ -26,46 +26,46 @@ const at = (i: number) => FLOW_POSITIONS[i]!;
 
 export const heroFlow: (FlowNode & { role: string })[] = [
   {
-    id: 'warehouse',
-    label: 'Warehouse',
-    icon: 'warehouse',
+    id: 'source',
+    label: 'Source Code',
+    icon: 'workflow',
     ...at(0),
-    role: 'Where product is received, replenished, selected and shipped.',
+    role: 'Application code, configuration, and automated checks.',
   },
   {
-    id: 'inventory',
-    label: 'Inventory',
+    id: 'build',
+    label: 'Build & Test',
     icon: 'boxes',
     ...at(1),
-    role: 'Keeps system records aligned with physical stock.',
+    role: 'Run tests, TypeScript checks, and production builds.',
   },
   {
-    id: 'orders',
-    label: 'Order Processing',
-    icon: 'package',
-    ...at(2),
-    role: 'Turns customer orders into accurate, shipped fulfillment.',
-  },
-  {
-    id: 'systems',
-    label: 'Data Systems',
+    id: 'registry',
+    label: 'Amazon ECR',
     icon: 'database',
+    ...at(2),
+    role: 'Publish the container image to the Amazon Elastic Container Registry.',
+  },
+  {
+    id: 'deploy',
+    label: 'AWS Deploy',
+    icon: 'package',
     ...at(3),
-    role: 'Records and communicates operational information.',
+    role: 'Deploy the application to the AWS Lightsail environment through SSH.',
   },
   {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: 'chart',
-    ...at(4),
-    role: 'Turns records into visibility for better decisions.',
-  },
-  {
-    id: 'optimization',
-    label: 'Process Optimization',
+    id: 'secure',
+    label: 'HTTPS & DNS',
     icon: 'workflow',
+    ...at(4),
+    role: 'Serve the application through Caddy, HTTPS, and Cloudflare DNS.',
+  },
+  {
+    id: 'verify',
+    label: 'Health Checks',
+    icon: 'chart',
     ...at(5),
-    role: 'Feeds what is learned back into how work is done.',
+    role: 'Verify deployment health and handle rollback if needed.',
   },
 ];
 
@@ -116,10 +116,6 @@ export const opsTechFlow: OpsTechNode[] = [
     ],
     illustrative:
       'Exception queues and count-variance views could make discrepancies visible sooner.',
-    conceptLink: {
-      label: 'Warehouse Inventory Management System (concept)',
-      to: '/projects/warehouse-inventory-management-system',
-    },
   },
   {
     id: 'order-processing',
@@ -166,10 +162,6 @@ export const opsTechFlow: OpsTechNode[] = [
     ],
     illustrative:
       'Operational KPI cards and filtered tables could present this information in one place.',
-    conceptLink: {
-      label: 'Supply Chain Operations Dashboard (concept)',
-      to: '/projects/supply-chain-operations-dashboard',
-    },
   },
   {
     id: 'process-improvement',
