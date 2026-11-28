@@ -126,14 +126,14 @@ describe('project integrity', () => {
   const concepts = projects.filter((p) => p.status === 'Concept');
 
   it('every concept is an honest concept with no invented links, outcomes or screenshots', () => {
-    expect(concepts).toHaveLength(4);
+    expect(concepts).toHaveLength(2);
     for (const p of concepts) {
       expect(p.repoUrl).toBeNull();
       expect(p.liveUrl).toBeNull();
       expect(p.screenshots).toEqual([]);
       expect(p.implementationStatus).toMatch(/^Concept/);
     }
-    expect(new Set(projects.map((p) => p.slug)).size).toBe(5);
+    expect(new Set(projects.map((p) => p.slug)).size).toBe(3);
   });
 
   it('lists the AWS deployment as the only completed project, linked to the live site', () => {

@@ -5,6 +5,7 @@ import { Button } from '../components/common/Button';
 import { GithubIcon } from '../components/common/Icons';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { ProjectIllustration } from '../components/projects/ProjectIllustration';
+import { ScreenshotGallery } from '../components/projects/ScreenshotGallery';
 import { getProject } from '../data/projects';
 import { useSeo } from '../lib/seo';
 import NotFound from './NotFound';
@@ -111,24 +112,18 @@ export default function ProjectDetail() {
               </li>
             ))}
           </ul>
+          <ScreenshotGallery shots={project.screenshots} />
         </Block>
         <Block title="Implementation status">
           <p>{project.implementationStatus}</p>
         </Block>
-        {(isConcept || project.screenshots.length > 0) && (
+        {project.screenshots.length === 0 && (
           <Block title="Screenshots">
-            {project.screenshots.length === 0 ? (
-              <p className="empty">
-                No screenshots yet. They will be added only when a working implementation exists.
-                The illustration above is abstract and does not show a real system.
-              </p>
-            ) : (
-              <div className="shots">
-                {project.screenshots.map((s) => (
-                  <img key={s.src} src={s.src} alt={s.alt} loading="lazy" decoding="async" />
-                ))}
-              </div>
-            )}
+            <p className="empty">
+              {isConcept
+                ? 'No screenshots yet. They will be added only when a working implementation exists. The illustration above is abstract and does not show a real system.'
+                : 'Screenshots for this project will be added here soon.'}
+            </p>
           </Block>
         )}
         <Block title="Known limitations">
