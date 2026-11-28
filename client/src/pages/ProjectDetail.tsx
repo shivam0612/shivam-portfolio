@@ -31,6 +31,8 @@ export default function ProjectDetail() {
   if (!project) return <NotFound />;
 
   const isConcept = project.status === 'Concept';
+  /** A finished project that has no hosted copy yet shows a disabled Live Demo button. */
+  const liveDemoPending = project.status === 'Completed' && !project.liveUrl;
   return (
     <article className="container detail">
       <Link to="/projects" className="back-link" data-cursor="link">
@@ -142,11 +144,16 @@ export default function ProjectDetail() {
         </Block>
       </div>
 
-      {(project.repoUrl || project.liveUrl) && (
+      {(project.repoUrl || project.liveUrl || liveDemoPending) && (
         <div className="detail__links">
           {project.liveUrl && (
             <Button href={project.liveUrl} external icon="external" variant="primary">
               Live Demo
+            </Button>
+          )}
+          {liveDemoPending && (
+            <Button variant="primary" icon="none" disabled aria-label="Live demo coming soon">
+              Live Demo (coming soon)
             </Button>
           )}
           {project.repoUrl && (

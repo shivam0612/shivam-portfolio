@@ -1,8 +1,8 @@
 import type { Project } from './types';
 
 /**
- * Project catalogue. The AWS-hosted portfolio deployment is a completed project described in
- * the supplied resume. The remaining entries are concepts and are labelled as such.
+ * Project catalogue. The AWS-hosted portfolio deployment and Portfolio 1.0 are completed
+ * projects. The remaining entries are concepts and are labelled as such.
  */
 export const projects: Project[] = [
   {
@@ -78,7 +78,7 @@ export const projects: Project[] = [
       ],
     },
     implementationStatus:
-      'Completed personal project. The portfolio is deployed at the live website. The described infrastructure and deployment workflow are based on the project details supplied in the resume.',
+      'Completed personal project. The portfolio is deployed at the live website at shivampatel.site, using the AWS Lightsail, Docker, Amazon ECR and Caddy setup described on this page.',
     screenshots: [
       {
         src: '/images/projects/portfolio/about.webp',
@@ -132,6 +132,118 @@ export const projects: Project[] = [
     },
     repoUrl: 'https://github.com/shivam0612/shivam-portfolio',
     liveUrl: 'https://shivampatel.site',
+  },
+  {
+    slug: 'portfolio-1-0',
+    title: 'Portfolio 1.0: Next.js Personal Portfolio',
+    category: 'Full-Stack / Front-End Web',
+    status: 'Completed',
+    illustration: 'lab',
+    summary:
+      'My first personal portfolio website, built with Next.js, React, Tailwind CSS and Framer Motion. It introduces my background, experience, skills and projects, and includes an EmailJS contact form.',
+    features: [
+      'Home, About, Portfolio and Contact pages',
+      'Biography, experience timeline and skills overview on the About page',
+      'Animated “My Works” project showcase',
+      'Contact form built with the EmailJS browser SDK',
+      '“Let’s Work” call to action with rotating text badge',
+      'Animated interface using Framer Motion',
+      'Responsive styling with Tailwind CSS',
+      'GitHub and LinkedIn links in the navigation bar',
+    ],
+    stack: [
+      'Next.js 14',
+      'React 18',
+      'Tailwind CSS',
+      'Framer Motion',
+      'EmailJS',
+      'PostCSS',
+      'Autoprefixer',
+      'ESLint',
+      'GitHub',
+    ],
+    problem:
+      'I needed a personal website to introduce myself, present my experience, skills and projects in one place, and give visitors an easy way to contact me, with a distinctive and animated design.',
+    users: [
+      'Recruiters and hiring teams',
+      'Potential clients and collaborators',
+      'Visitors to my portfolio',
+    ],
+    workflow: [
+      'A visitor lands on the Home page and reads the introduction.',
+      'The About page shows my biography, experience timeline and skills.',
+      'The Portfolio page presents my projects in an animated showcase.',
+      'The Contact page offers a message form and a “Let’s Work” call to action.',
+      'The form sends the visitor’s message and email address to me through EmailJS.',
+    ],
+    architecture: {
+      summary:
+        'A front-end application built on Next.js 14 and React 18. Styling uses Tailwind CSS, animation uses Framer Motion, and the contact form uses the EmailJS browser SDK, so no custom backend is needed.',
+      layers: [
+        {
+          name: 'Framework',
+          detail: 'Next.js 14 with React 18 provides routing, pages and the build.',
+        },
+        {
+          name: 'Styling & Animation',
+          detail:
+            'Tailwind CSS (with PostCSS and Autoprefixer) handles layout and responsive design; Framer Motion handles animation.',
+        },
+        {
+          name: 'Contact',
+          detail:
+            'The EmailJS browser SDK sends the contact form message to my email account from the browser.',
+        },
+        {
+          name: 'Code Quality',
+          detail: 'ESLint with the Next.js configuration checks the code.',
+        },
+      ],
+    },
+    implementationStatus:
+      'Completed personal project (version 1.0) with the source code on GitHub. It is not hosted yet, so the Live Demo button is disabled. A free hosting link will be added later. The screenshots show the running application.',
+    screenshots: [
+      {
+        src: '/images/projects/portfolio-1-0/home.webp',
+        alt: 'Home page: “Building bridges between Code and Clouds” with an illustrated portrait',
+      },
+      {
+        src: '/images/projects/portfolio-1-0/about-biography.webp',
+        alt: 'About page: photo and biography beside a gear-brain illustration',
+      },
+      {
+        src: '/images/projects/portfolio-1-0/about-experience.webp',
+        alt: 'About page: experience timeline with roles and dates',
+      },
+      {
+        src: '/images/projects/portfolio-1-0/about-skills.webp',
+        alt: 'About page: skills shown as tags',
+      },
+      {
+        src: '/images/projects/portfolio-1-0/contact-say-hello.webp',
+        alt: 'Contact page: “Say Hello” message form with email field and Send button',
+      },
+      {
+        src: '/images/projects/portfolio-1-0/contact-lets-work.webp',
+        alt: 'Contact page: “Do you have a project?” with the rotating “Let’s Work” badge',
+      },
+    ],
+    limitations: [
+      'This is an earlier version of my portfolio. Its experience and skills content has since been updated on my current portfolio.',
+      'It is not hosted yet, so there is no live demo.',
+      'The contact form depends on a third-party service (EmailJS) and its account configuration.',
+    ],
+    futureImprovements: [
+      'Host it on a free platform and add the live link.',
+      'Update the content to match my current experience and skills.',
+      'Review the animations for visitors who prefer reduced motion.',
+    ],
+    coverImage: {
+      src: '/images/projects/portfolio-1-0/home.webp',
+      alt: 'Home page of Portfolio 1.0 with the headline “Building bridges between Code and Clouds”',
+    },
+    repoUrl: 'https://github.com/shivam0612/Portfolio-1.0',
+    liveUrl: null,
   },
   {
     slug: 'operations-workflow-visualizer',

@@ -10,8 +10,9 @@ export function FeaturedProjects() {
       <div className="container">
         <SectionHeading id="projects-title" title="Featured projects">
           <p>
-            A completed AWS deployment project and ideas for how operational information could be
-            presented and managed. Each one is labelled with its real status.
+            Two completed projects, an AWS deployment and my first Next.js portfolio, plus an idea
+            for how operational information could be presented. Each one is labelled with its real
+            status.
           </p>
         </SectionHeading>
         <Stagger className="project-grid">

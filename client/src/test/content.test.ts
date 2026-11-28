@@ -114,7 +114,7 @@ describe('no fabricated metrics', () => {
     ]) {
       expect(names).toContain(n);
     }
-    expect(names).toHaveLength(7 + 9 + 8 + 5 + 5 + 6 + 5);
+    expect(names).toHaveLength(7 + 9 + 12 + 5 + 5 + 6 + 5);
   });
 
   it('does not include removed Nestle or Kellogg employment', () => {
@@ -133,13 +133,19 @@ describe('project integrity', () => {
       expect(p.screenshots).toEqual([]);
       expect(p.implementationStatus).toMatch(/^Concept/);
     }
-    expect(new Set(projects.map((p) => p.slug)).size).toBe(3);
+    expect(new Set(projects.map((p) => p.slug)).size).toBe(4);
   });
 
-  it('lists the AWS deployment as the only completed project, linked to the live site', () => {
+  it('lists the two completed projects, with the live site only on the AWS deployment', () => {
     const completed = projects.filter((p) => p.status === 'Completed');
-    expect(completed.map((p) => p.slug)).toEqual(['aws-hosted-portfolio-deployment']);
+    expect(completed.map((p) => p.slug)).toEqual([
+      'aws-hosted-portfolio-deployment',
+      'portfolio-1-0',
+    ]);
     expect(completed[0]!.liveUrl).toBe('https://shivampatel.site');
+    expect(completed[1]!.liveUrl).toBeNull();
+    expect(completed[1]!.repoUrl).toBe('https://github.com/shivam0612/Portfolio-1.0');
+    expect(completed[1]!.screenshots).toHaveLength(6);
   });
 
   it('concept copy does not claim results', () => {
